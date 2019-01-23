@@ -130,7 +130,7 @@ async def shaxx(message):
     voice_channel = message.author.voice.channel
     try:
         vc = await voice_channel.connect()
-    except discord.errors.ClientException:
+    except discord.errors.ClientException:  # Raised if the bot is already in a channel
         await message.channel.send("LET ME FINISH!")
     # Play the shaxx quote
     finally:
