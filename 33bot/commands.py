@@ -134,7 +134,7 @@ commands = {
             'toggle_role': toggle_role,
             }
 hidden_commands = {'hello': hello,
-                   'heros': heros,
+                   'heroes': heros,
                    'rtd': roll_the_dice,
                    'thankyou': thanks,
                    'thanks': thanks,
