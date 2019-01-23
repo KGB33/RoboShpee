@@ -1,4 +1,5 @@
 from constants import TOGGLEABLE_ROLES, PREFIX, OVERWATCH_HEROS
+from Exceptions import ZerothHeroError, TooManyHerosError
 import discord
 import random
 
@@ -13,16 +14,20 @@ async def golden_gun(message):
             Try "heros" for hero-number pairs
     """
     try:
-        owned = [int(x) for x in message.content.split()[1:]]
+        owned = set([abs(int(x)) for x in message.content.split()[1:]])
         if len(owned) > len(OVERWATCH_HEROS):
-            raise IndexError
+            raise TooManyHerosError
+        if 0 in owned:
+            raise ZerothHeroError
     except ValueError:
         return await message.channel.send("{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
                                           .format(message.author.mention))
-    except IndexError:
+    except TooManyHerosError:
         return await message.channel.send("{}, No, BOB still isn't a playable hero :(\t"
                                           "*(if more heros have been added let KGB know to update his list)*"
                                           .format(message.author.mention))
+    except ZerothHeroError:
+        return await message.channel.send("{}, There isn't a Zeroth Hero".format(message.author.mention))
     try:
         return await message.channel.send("{}, Your next Golden Gun is for {}!".format(
                                           message.author.mention,
