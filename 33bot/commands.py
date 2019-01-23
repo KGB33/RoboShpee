@@ -1,4 +1,4 @@
-from constants import TOGGLEABLE_ROLES, PREFIX, OVERWATCH_HEROS
+from constants import TOGGLEABLE_ROLES, PREFIX, OVERWATCH_HEROS, SHAXX_QUOTES
 from Exceptions import ZerothHeroError, TooManyHerosError
 import discord
 import random
@@ -125,6 +125,10 @@ async def roll_the_dice(message):
     await message.channel.send("Nothing's Here. Any Suggestions?")
 
 
+async def shaxx(message):
+    return await message.channel.send('{}'.format(random.choice(SHAXX_QUOTES)))
+
+
 async def thanks(message):
     await message.channel.send("You're Welcome {}!".format(message.author.mention))
 
@@ -156,6 +160,7 @@ commands = {
 hidden_commands = {'hello': hello,
                    'heroes': heros,
                    'rtd': roll_the_dice,
+                   'shaxx': shaxx,
                    'thankyou': thanks,
                    'thanks': thanks,
                    'help': command_help,
