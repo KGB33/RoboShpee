@@ -17,6 +17,9 @@ logger.addHandler(handler)
 # Set up discord client
 client = discord.Client()
 
+# set up opus to use voice
+discord.opus.load_opus('libopus-0.x86.dll')
+
 
 @client.event
 async def on_message(message):
