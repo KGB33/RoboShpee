@@ -126,7 +126,16 @@ async def roll_the_dice(message):
 
 
 async def shaxx(message):
-    return await message.channel.send('{}'.format(random.choice(SHAXX_QUOTES)))
+    # join the VC
+    voice_channel = message.author.voice.channel
+    try:
+        vc = await voice_channel.connect()
+    except discord.errors.ClientException:
+        await message.channel.send("LET ME FINISH!")
+    # Play the shaxx quote
+    finally:
+        await message.channel.send('{}'.format(random.choice(SHAXX_QUOTES)))
+        await vc.disconnect()
 
 
 async def thanks(message):
