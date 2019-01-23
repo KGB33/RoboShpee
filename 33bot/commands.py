@@ -20,8 +20,8 @@ async def golden_gun(message):
         return await message.channel.send("{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
                                           .format(message.author.mention))
     except IndexError:
-        return await message.channel.send("{}, not all of those heros have been released yet!\t"
-                                          "*(if they have, let KGB know to update his list)*"
+        return await message.channel.send("{}, No, BOB still isn't a playable hero :(\t"
+                                          "*(if more heros have been added let KGB know to update his list)*"
                                           .format(message.author.mention))
     try:
         return await message.channel.send("{}, Your next Golden Gun is for {}!".format(
