@@ -14,8 +14,14 @@ async def golden_gun(message):
     """
     try:
         owned = [int(x) for x in message.content.split()[1:]]
+        if len(owned) > len(OVERWATCH_HEROS):
+            raise IndexError
     except ValueError:
         return await message.channel.send("{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
+                                          .format(message.author.mention))
+    except IndexError:
+        return await message.channel.send("{}, not all of those heros have been released yet!\t"
+                                          "*(if they have, let KGB know to update his list)*"
                                           .format(message.author.mention))
     try:
         return await message.channel.send("{}, Your next Golden Gun is for {}!".format(
@@ -33,9 +39,18 @@ async def random_num(message):
             "random_number 3"
             will return a 0, 1, 2, or 3
     """
-    max_num = int(message.content.split()[1])
-    return await message.channel.send('{},\tYour random number (between 0 and {}) is: {}'
-                                      .format(message.author.mention, max_num, random.randint(0, max_num)))
+    try:
+        max_num = int(message.content.split()[1])
+    except ValueError:  # Max num isn't an int
+        return await message.channel.send("{}, '{}' isn't a number dummy"
+                                          .format(message.author.mention, message.content.split()[1]))
+    try:
+        rand_num = random.randint(0, max_num)
+    except ValueError:  # Max num is negative
+        rand_num = random.randint(max_num, 0)
+    finally:
+        return await message.channel.send('{},\tYour random number (between 0 and {}) is: {}'
+                                          .format(message.author.mention, max_num, rand_num))
 
 
 async def roles(message):
