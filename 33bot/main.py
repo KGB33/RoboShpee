@@ -38,12 +38,12 @@ async def on_message(message):
         message.content[0].lower()
 
         try:
-            task = asyncio.create_task(commands[message.content.split()[0]](message))
+            task = asyncio.create_task(commands[message.content.split()[0]](client, message))
         except KeyError:
             try:
-                task = asyncio.create_task(hidden_commands[message.content.split()[0]](message))
+                task = asyncio.create_task(hidden_commands[message.content.split()[0]](client, message))
             except KeyError:
-                task = asyncio.create_task(command_not_recognised(message))
+                task = asyncio.create_task(command_not_recognised(client, message))
 
         await task
 
