@@ -2,8 +2,10 @@ import discord
 import logging
 import asyncio
 import os
-from constants import PREFIX
-from commands import commands, hidden_commands, command_not_recognised
+import random
+from Exceptions import ZerothHeroError, TooManyHerosError
+from discord.ext import commands
+from constants import PREFIX, OVERWATCH_HEROS, TOGGLEABLE_ROLES, SHAXX_QUOTES
 
 # get TOKEN
 TOKEN = os.environ['DISCORD_TOKEN']
@@ -18,45 +20,172 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# Set up discord client
-client = discord.Client()
+# Set up discord bot
+bot = commands.Bot(command_prefix=PREFIX)
+
+
+@bot.event
+async def on_ready():
+    print("Logged in as:")
+    print(bot.user.name)
+    print(bot.user.id)
+    print('--------------\n\n')
 
 # set up opus to use voice
 # discord.opus.load_opus('libopus-0.x86.dll')
 
 
-@client.event
-async def on_message(message):
-    # Prevent bot from replying to itself
-    if message.author == client.user:
-        return
+# Commands ---------------------------------
+@bot.command(pass_context=True)
+async def golden_gun(ctx):
+    """
+    Choose the next Overwatch Golden Gun for you to get.
+    For Example:
+            "golden_gun 1 8 15 24 28"
+            Where the numbers are the heros who you already have golden guns for
+            Try "heros" for hero-number pairs
+    """
+    try:
+        owned = set([abs(int(x)) for x in ctx.message.content.split()[1:]])
+        if len(owned) > len(OVERWATCH_HEROS):
+            raise TooManyHerosError
+        if 0 in owned:
+            raise ZerothHeroError
+    except ValueError:
+        return await bot.say("{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
+                             .format(ctx.message.author.mention))
+    except TooManyHerosError:
+        return await bot.say("{}, No, BOB still isn't a playable hero :(\t"
+                             "*(if more heros have been added let KGB know to update his list)*"
+                             .format(ctx.message.author.mention))
+    except ZerothHeroError:
+        return await bot.say("{}, There isn't a Zeroth Hero".format(ctx.message.author.mention))
+    try:
+        return await bot.say("{}, Your next Golden Gun is for {}!".format(
+                              ctx.message.author.mention,
+                              OVERWATCH_HEROS[random.choice(list((OVERWATCH_HEROS.keys() ^ owned)))]))
+    except IndexError:
+        return await bot.say("{} is a liar!, They dont have every golden gun!"
+                             .format(ctx.message.author.mention))
 
-    # Check PREFIX
-    if message.content[:3] == PREFIX:
-        # Log message and message info
-        logger.info("\tMessage: \n\t\t{}\n\n\tWas sent by {}\n\tIn {} Channel\n\n\n"
-                    .format(message.content, message.author, message.channel))
 
-        # trim PREFIX from message
-        message.content = message.content[3:].strip()
-        message.content[0].lower()
+@bot.command(pass_context=True)
+async def random_num(ctx):
+    """
+    Gets a Random integer between 0 and given max
+    For example:
+            "random_number 3"
+            will return a 0, 1, 2, or 3
+    """
+    rand_num = None
+    try:
+        max_num = int(ctx.message.content.split()[1])
+    except ValueError:  # Max num isn't an int
+        return await bot.say("{}, '{}' isn't a number dummy"
+                             .format(ctx.message.author.mention, ctx.message.content.split()[1]))
+    try:
+        rand_num = random.randint(0, max_num)
+    except ValueError:  # Max num is negative
+        rand_num = random.randint(max_num, 0)
+    finally:
+        return await bot.say('{},\tYour random number (between 0 and {}) is: {}'
+                             .format(ctx.message.author.mention, max_num, rand_num))
 
-        try:
-            task = asyncio.create_task(commands[message.content.split()[0]](client, message))
-        except KeyError:
-            try:
-                task = asyncio.create_task(hidden_commands[message.content.split()[0]](client, message))
-            except KeyError:
-                task = asyncio.create_task(command_not_recognised(client, message))
 
-        await task
+@bot.command(pass_context=True)
+async def roles(ctx):
+    """
+    Displays Your current roles as well as the currently toggleable roles
+    """
+    current_roles = [r.name for r in reversed(ctx.message.author.roles)][:-1]
+    your_toggleable_roles = []
+    for r in TOGGLEABLE_ROLES:
+        if r in current_roles:
+            your_toggleable_roles += ['**' + r + '**', ]
+        else:
+            your_toggleable_roles += [r, ]
+
+    msg = "Your Current Roles: {}\nToggleable Roles: {}".format(current_roles, your_toggleable_roles)
+    return await bot.say("{}:\n{}".format(ctx.message.author.mention, msg))
 
 
-@client.event
-async def on_ready():
-    print("Logged in as:")
-    print(client.user.name)
-    print(client.user.id)
-    print('--------------\n\n')
+@bot.command(pass_context=True)
+async def toggle_role(ctx):
+    """
+    Toggles given role on or off
+    for example:
+            "toggle_role overwatch"
+            will add or remove the overwatch role
+    Try "roles" for Currently Toggleable Roles
+    """
+    try:
+        role_to_toggle = ctx.message.content.split()[1]
 
-client.run(TOKEN)
+        if role_to_toggle in TOGGLEABLE_ROLES:  # Checks to See if given role is toggleable
+            role_to_toggle = discord.utils.get(ctx.message.channel.server.roles, name=role_to_toggle)
+
+            # Toggle role
+            if role_to_toggle in ctx.message.author.roles:  # Removes Role
+                await bot.remove_roles(ctx.message.author, role_to_toggle)
+                await bot.say("{}: Role removed".format(ctx.message.author.mention))
+            else:  # Gives Role
+                await bot.add_roles(ctx.message.author, role_to_toggle)
+                await bot.say("{}: Role Added".format(ctx.message.author.mention))
+
+        # Role is not toggleable
+        else:
+            await bot.say('Role Not Found, try "{}roles" for a list of toggleable roles'.format(PREFIX))
+
+    # Checks to see if a role was given
+    except IndexError:
+        await bot.say('You must add a valid role, try "{}help" for help'.format(PREFIX))
+
+
+# Hidden Commands ---------------------------
+
+@bot.command(pass_context=True)
+async def hello(ctx):
+    """
+    Says Hello to whomever called it
+    """
+    msg = 'Hi {0.author.mention}'.format(ctx.message)
+    await bot.say(msg)
+
+
+@bot.command()
+async def heros():
+    msg = ''
+    for k in OVERWATCH_HEROS:
+        msg += '{}: {}\n'.format(k, OVERWATCH_HEROS[k])
+    await bot.say(msg)
+
+
+@bot.command()
+async def roll_the_dice():
+    await bot.say("Nothing's Here. Any Suggestions?")
+
+
+@bot.command(pass_context=True)
+async def shaxx(ctx):
+    # join the VC
+    vc = None
+    try:
+        voice_channel = ctx.message.author.voice.channel
+        vc = await voice_channel.connect()
+    except discord.errors.ClientException:  # Raised if the bot is already in a channel
+        await bot.say("LET ME FINISH!")
+    except AttributeError:  # User is not in a VC
+        pass
+    # Play the shaxx quote
+    finally:
+        await bot.say('{}'.format(random.choice(SHAXX_QUOTES)))
+        await vc.disconnect()
+
+
+@bot.command(pass_context=True)
+async def thanks(ctx):
+    await bot.say("You're Welcome {}!".format(ctx.message.author.mention))
+    
+    
+# Start the bot
+bot.run(TOKEN)
