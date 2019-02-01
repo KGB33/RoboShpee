@@ -22,7 +22,7 @@ logger.addHandler(handler)
 client = discord.Client()
 
 # set up opus to use voice
-discord.opus.load_opus('libopus-0.x86.dll')
+# discord.opus.load_opus('libopus-0.x86.dll')
 
 
 @client.event
