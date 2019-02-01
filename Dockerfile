@@ -8,5 +8,5 @@ ADD 33bot/main.py /
 
 RUN pip install https://github.com/KGB33/discord.py/archive/async.zip
 
-CMD ["python", "./33bot/main.py"]
+CMD ["python", "./main.py"]
 
