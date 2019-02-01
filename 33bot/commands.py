@@ -44,6 +44,7 @@ async def random_num(message):
             "random_number 3"
             will return a 0, 1, 2, or 3
     """
+    rand_num = None
     try:
         max_num = int(message.content.split()[1])
     except ValueError:  # Max num isn't an int
@@ -127,11 +128,14 @@ async def roll_the_dice(message):
 
 async def shaxx(message):
     # join the VC
+    vc = None
     voice_channel = message.author.voice.channel
     try:
         vc = await voice_channel.connect()
     except discord.errors.ClientException:  # Raised if the bot is already in a channel
         await message.channel.send("LET ME FINISH!")
+    except AttributeError:  # User is not in a VC
+        pass
     # Play the shaxx quote
     finally:
         await message.channel.send('{}'.format(random.choice(SHAXX_QUOTES)))
