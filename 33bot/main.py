@@ -1,9 +1,13 @@
 import discord
 import logging
 import asyncio
-from not_so_secret import TOKEN  # TODO: Figure out how venv variables work
+import os
 from constants import PREFIX
 from commands import commands, hidden_commands, command_not_recognised
+
+# get TOKEN
+TOKEN = os.environ['DISCORD_TOKEN']
+
 
 # Set up logger
 logger = logging.getLogger(__name__)
