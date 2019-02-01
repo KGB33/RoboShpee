@@ -34,7 +34,8 @@ async def on_message(message):
                     .format(message.content, message.author, message.channel))
 
         # trim PREFIX from message
-        message.content = message.content[3:].lower().strip()
+        message.content = message.content[3:].strip()
+        message.content[0].lower()
 
         try:
             task = asyncio.create_task(commands[message.content.split()[0]](message))
