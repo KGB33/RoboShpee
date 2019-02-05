@@ -1,9 +1,10 @@
 # message prefix that the bot will respond to
 PREFIX = '!3.'
+test_PREFIX = 't.'
 
 
-# Toggleable roles on the server
-TOGGLEABLE_ROLES = ['Brawlhalla', 'Civilization', 'Dauntless', 'Destiny2', 'DJ', 'Overwatch', 'SmashBros', ]
+# Toggleable roles on the server #TODO: Can these be gotten from the server? maybe all roles of color "X"?
+TOGGLEABLE_ROLES = ['ApexLegends', 'Brawlhalla', 'Civilization', 'Dauntless', 'Destiny2', 'DJ', 'Overwatch', 'SmashBros', ]
 
 
 OVERWATCH_HEROS = {
