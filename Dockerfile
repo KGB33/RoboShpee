@@ -5,7 +5,7 @@ ADD 33bot/constants.py /
 ADD 33bot/Exceptions.py /
 ADD 33bot/main.py /
 
-RUN pip install https://github.com/KGB33/discord.py/archive/async.zip
+RUN pip install https://github.com/Rapptz/discord.py/archive/rewrite.zip
 
 CMD ["python", "./main.py"]
 
