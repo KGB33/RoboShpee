@@ -54,12 +54,13 @@ async def golden_gun(ctx):
         if 0 in owned:
             raise ZerothHeroError
     except ValueError:
-        return await ctx.message.channel.send("{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
-                             .format(ctx.message.author.mention))
+        return await ctx.message.channel.send("{}, arguments must be numeric,"
+                                              " try 'heros' for a list of hero-number pairs"
+                                              .format(ctx.message.author.mention))
     except TooManyHerosError:
         return await ctx.message.channel.send("{}, No, BOB still isn't a playable hero :(\t"
-                             "*(if more heros have been added let KGB know to update his list)*"
-                             .format(ctx.message.author.mention))
+                                              "*(if more heros have been added let KGB know to update his list)*"
+                                              .format(ctx.message.author.mention))
     except ZerothHeroError:
         return await ctx.message.channel.send("{}, There isn't a Zeroth Hero".format(ctx.message.author.mention))
     try:
