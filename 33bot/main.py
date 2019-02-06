@@ -5,12 +5,10 @@ import os
 import random
 from Exceptions import ZerothHeroError, TooManyHerosError
 from discord.ext import commands
-from constants import PREFIX, test_PREFIX, OVERWATCH_HEROS, TOGGLEABLE_ROLES, SHAXX_QUOTES
-import time
+from constants import PREFIX, OVERWATCH_HEROS, TOGGLEABLE_ROLES, SHAXX_QUOTES
 
 # get TOKEN
-# TOKEN = os.environ['DISCORD_TOKEN']
-from not_so_secret import TOKEN  # TODO!! Change back before pushing to master
+TOKEN = os.environ['DISCORD_TOKEN']
 
 
 # Set up logger
@@ -23,7 +21,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # Set up discord bot
-bot = commands.Bot(command_prefix=test_PREFIX)
+bot = commands.Bot(command_prefix=PREFIX)
 
 
 @bot.event
