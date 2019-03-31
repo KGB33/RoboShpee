@@ -11,7 +11,7 @@ TOGGLEABLE_ROLES = ['ApexLegends',
                     'Destiny2',
                     'DJ',
                     'Overwatch',
-                    'Risk Of Rain',
+                    'RiskOfRain',
                     'SmashBros', ]
 
 
