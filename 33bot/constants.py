@@ -3,18 +3,6 @@ PREFIX = '!3.'
 test_PREFIX = 't.'
 
 
-# Toggleable roles on the server #TODO: Can these be gotten from the server? maybe all roles of color "X"?
-TOGGLEABLE_ROLES = ['ApexLegends',
-                    'Brawlhalla',
-                    'Civilization',
-                    'Dauntless',
-                    'Destiny2',
-                    'DJ',
-                    'Overwatch',
-                    'Risk Of Rain',
-                    'SmashBros', ]
-
-
 OVERWATCH_HEROS = {
                 1: "Ana",
                 2: "Ashe",
