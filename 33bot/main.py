@@ -5,10 +5,12 @@ import os
 import random
 from Exceptions import ZerothHeroError, TooManyHerosError
 from discord.ext import commands
-from constants import PREFIX, OVERWATCH_HEROS, TOGGLEABLE_ROLES, SHAXX_QUOTES
+from constants import PREFIX, OVERWATCH_HEROS, SHAXX_QUOTES
 
 # get TOKEN
 TOKEN = os.environ['DISCORD_TOKEN']
+#from not_so_secret import TOKEN as dis_token
+#TOKEN = dis_token
 
 
 # Set up logger
@@ -109,11 +111,18 @@ async def roles(ctx):
     """
     current_roles = [r.name for r in reversed(ctx.message.author.roles)][:-1]
     your_toggleable_roles = []
-    for r in TOGGLEABLE_ROLES:
+    toggleable_roles = []
+
+    for role in ctx.message.channel.guild.roles:
+        if str(role.color) == '#206694':
+            toggleable_roles += [role, ]
+    toggleable_roles.sort()
+
+    for r in reversed(toggleable_roles):
         if r in current_roles:
-            your_toggleable_roles += ['**' + r + '**', ]
+            your_toggleable_roles += ['**' + r.name.strip() + '**', ]
         else:
-            your_toggleable_roles += [r, ]
+            your_toggleable_roles += [r.name, ]
 
     msg = "Your Current Roles: {}\nToggleable Roles: {}".format(current_roles, your_toggleable_roles)
     return await ctx.message.channel.send("{}:\n{}".format(ctx.message.author.mention, msg))
@@ -144,10 +153,16 @@ async def toggle_role(ctx):
             will add or remove the overwatch role
     Try "roles" for Currently Toggleable Roles
     """
+    # gets toggleable Roles
+    toggleable_roles = []
+    for role in ctx.message.channel.guild.roles:
+        if str(role.color) == '#206694':
+            toggleable_roles += [role.name, ]
+
     try:
         role_to_toggle = ctx.message.content.split()[1]
 
-        if role_to_toggle in TOGGLEABLE_ROLES:  # Checks to See if given role is toggleable
+        if role_to_toggle in toggleable_roles:  # Checks to See if given role is toggleable
             role_to_toggle = discord.utils.get(ctx.message.channel.guild.roles, name=role_to_toggle)
 
             # Toggle role
