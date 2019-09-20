@@ -5,7 +5,7 @@ ADD 33bot/constants.py /
 ADD 33bot/Exceptions.py /
 ADD 33bot/main.py /
 
-RUN pip install https://github.com/Rapptz/discord.py/archive/rewrite.zip
+RUN pip install discord.py
 
 CMD ["python", "./main.py"]
 
