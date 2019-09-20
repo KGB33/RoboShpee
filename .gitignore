@@ -2,3 +2,5 @@
 not_so_secret.py
 *.log
 env_vars
+.idea
+/venv/
