@@ -20,21 +20,40 @@ async def golden_gun(client, message):
         if 0 in owned:
             raise ZerothHeroError
     except ValueError:
-        return await client.send_message(message.channel, "{}, arguments must be numeric, try 'heros' for a list of hero-number pairs"
-                                          .format(message.author.mention))
+        return await client.send_message(
+            message.channel,
+            "{}, arguments must be numeric, try 'heros' for a list of hero-number pairs".format(
+                message.author.mention
+            ),
+        )
     except TooManyHerosError:
-        return await client.send_message(message.channel, "{}, No, BOB still isn't a playable hero :(\t"
-                                          "*(if more heros have been added let KGB know to update his list)*"
-                                          .format(message.author.mention))
+        return await client.send_message(
+            message.channel,
+            "{}, No, BOB still isn't a playable hero :(\t"
+            "*(if more heros have been added let KGB know to update his list)*".format(
+                message.author.mention
+            ),
+        )
     except ZerothHeroError:
-        return await client.send_message(message.channel, "{}, There isn't a Zeroth Hero".format(message.author.mention))
+        return await client.send_message(
+            message.channel,
+            "{}, There isn't a Zeroth Hero".format(message.author.mention),
+        )
     try:
-        return await client.send_message(message.channel, "{}, Your next Golden Gun is for {}!".format(
-                                          message.author.mention,
-                                          OVERWATCH_HEROS[random.choice(list((OVERWATCH_HEROS.keys() ^ owned)))]))
+        return await client.send_message(
+            message.channel,
+            "{}, Your next Golden Gun is for {}!".format(
+                message.author.mention,
+                OVERWATCH_HEROS[random.choice(list((OVERWATCH_HEROS.keys() ^ owned)))],
+            ),
+        )
     except IndexError:
-        return await client.send_message(message.channel, "{} is a liar!, They dont have every golden gun!"
-                                          .format(message.author.mention))
+        return await client.send_message(
+            message.channel,
+            "{} is a liar!, They dont have every golden gun!".format(
+                message.author.mention
+            ),
+        )
 
 
 async def random_num(client, message):
@@ -48,15 +67,23 @@ async def random_num(client, message):
     try:
         max_num = int(message.content.split()[1])
     except ValueError:  # Max num isn't an int
-        return await client.send_message(message.channel, "{}, '{}' isn't a number dummy"
-                                          .format(message.author.mention, message.content.split()[1]))
+        return await client.send_message(
+            message.channel,
+            "{}, '{}' isn't a number dummy".format(
+                message.author.mention, message.content.split()[1]
+            ),
+        )
     try:
         rand_num = random.randint(0, max_num)
     except ValueError:  # Max num is negative
         rand_num = random.randint(max_num, 0)
     finally:
-        return await client.send_message(message.channel, '{},\tYour random number (between 0 and {}) is: {}'
-                                          .format(message.author.mention, max_num, rand_num))
+        return await client.send_message(
+            message.channel,
+            "{},\tYour random number (between 0 and {}) is: {}".format(
+                message.author.mention, max_num, rand_num
+            ),
+        )
 
 
 async def roles(client, message):
@@ -67,12 +94,20 @@ async def roles(client, message):
     your_toggleable_roles = []
     for r in TOGGLEABLE_ROLES:
         if r in current_roles:
-            your_toggleable_roles += ['**' + r + '**', ]
+            your_toggleable_roles += [
+                "**" + r + "**",
+            ]
         else:
-            your_toggleable_roles += [r, ]
+            your_toggleable_roles += [
+                r,
+            ]
 
-    msg = "Your Current Roles: {}\nToggleable Roles: {}".format(current_roles, your_toggleable_roles)
-    return await client.send_message(message.channel, "{}:\n{}".format(message.author.mention, msg))
+    msg = "Your Current Roles: {}\nToggleable Roles: {}".format(
+        current_roles, your_toggleable_roles
+    )
+    return await client.send_message(
+        message.channel, "{}:\n{}".format(message.author.mention, msg)
+    )
 
 
 async def toggle_role(client, message):
@@ -86,24 +121,40 @@ async def toggle_role(client, message):
     try:
         role_to_toggle = message.content.split()[1]
 
-        if role_to_toggle in TOGGLEABLE_ROLES:  # Checks to See if given role is toggleable
-            role_to_toggle = discord.utils.get(message.channel.server.roles, name=role_to_toggle)
+        if (
+            role_to_toggle in TOGGLEABLE_ROLES
+        ):  # Checks to See if given role is toggleable
+            role_to_toggle = discord.utils.get(
+                message.channel.server.roles, name=role_to_toggle
+            )
 
             # Toggle role
             if role_to_toggle in message.author.roles:  # Removes Role
                 await client.remove_roles(message.author, role_to_toggle)
-                await client.send_message(message.channel, "{}: Role removed".format(message.author.mention))
+                await client.send_message(
+                    message.channel, "{}: Role removed".format(message.author.mention)
+                )
             else:  # Gives Role
                 await client.add_roles(message.author, role_to_toggle)
-                await client.send_message(message.channel, "{}: Role Added".format(message.author.mention))
+                await client.send_message(
+                    message.channel, "{}: Role Added".format(message.author.mention)
+                )
 
         # Role is not toggleable
         else:
-            await client.send_message(message.channel, 'Role Not Found, try "{}roles" for a list of toggleable roles'.format(PREFIX))
+            await client.send_message(
+                message.channel,
+                'Role Not Found, try "{}roles" for a list of toggleable roles'.format(
+                    PREFIX
+                ),
+            )
 
     # Checks to see if a role was given
     except IndexError:
-        await client.send_message(message.channel, 'You must add a valid role, try "{}help" for help'.format(PREFIX))
+        await client.send_message(
+            message.channel,
+            'You must add a valid role, try "{}help" for help'.format(PREFIX),
+        )
 
 
 # Hidden Commands ---------------------------
@@ -111,14 +162,14 @@ async def hello(client, message):
     """
     Says Hello to whomever called it
     """
-    msg = 'Hi {0.author.mention}'.format(client, message)
+    msg = "Hi {0.author.mention}".format(client, message)
     await client.send_message(message.channel, msg)
 
 
 async def heros(client, message):
-    msg = ''
+    msg = ""
     for k in OVERWATCH_HEROS:
-        msg += '{}: {}\n'.format(k, OVERWATCH_HEROS[k])
+        msg += "{}: {}\n".format(k, OVERWATCH_HEROS[k])
     await client.send_message(message.channel, msg)
 
 
@@ -138,12 +189,16 @@ async def shaxx(client, message):
         pass
     # Play the shaxx quote
     finally:
-        await client.send_message(message.channel, '{}'.format(random.choice(SHAXX_QUOTES)))
+        await client.send_message(
+            message.channel, "{}".format(random.choice(SHAXX_QUOTES))
+        )
         await vc.disconnect()
 
 
 async def thanks(client, message):
-    await client.send_message(message.channel, "You're Welcome {}!".format(message.author.mention))
+    await client.send_message(
+        message.channel, "You're Welcome {}!".format(message.author.mention)
+    )
 
 
 # Help Command --------------------------------------
@@ -153,28 +208,30 @@ async def command_help(client, message):
     """
     msg = "Available Commands:\n\tPrefix: '{}'\n".format(PREFIX)
     for c in commands:
-        msg += '\n"{}": \n {} {}'.format(c, '-'*(len(c) + 3), commands[c].__doc__)
+        msg += '\n"{}": \n {} {}'.format(c, "-" * (len(c) + 3), commands[c].__doc__)
     await client.send_message(message.channel, msg)
 
 
 async def command_not_recognised(client, message):
-    msg = 'Command:   "{}"   Not Recognised,\n\tTry "{}help" for a list of commands' \
-        .format(message.content, PREFIX)
+    msg = 'Command:   "{}"   Not Recognised,\n\tTry "{}help" for a list of commands'.format(
+        message.content, PREFIX
+    )
     await client.send_message(message.channel, msg)
 
 
 # Dict containing all possible commands
 commands = {
-            'golden_gun': golden_gun,
-            'random_number': random_num,
-            'roles': roles,
-            'toggle_role': toggle_role,
-            }
-hidden_commands = {'hello': hello,
-                   'heroes': heros,
-                   'rtd': roll_the_dice,
-                   'shaxx': shaxx,
-                   'thankyou': thanks,
-                   'thanks': thanks,
-                   'help': command_help,
-                   }
+    "golden_gun": golden_gun,
+    "random_number": random_num,
+    "roles": roles,
+    "toggle_role": toggle_role,
+}
+hidden_commands = {
+    "hello": hello,
+    "heroes": heros,
+    "rtd": roll_the_dice,
+    "shaxx": shaxx,
+    "thankyou": thanks,
+    "thanks": thanks,
+    "help": command_help,
+}
