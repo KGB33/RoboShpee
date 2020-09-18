@@ -9,8 +9,6 @@ from constants import PREFIX, OVERWATCH_HEROS, SHAXX_QUOTES
 
 # get TOKEN
 TOKEN = os.environ['DISCORD_TOKEN']
-#from not_so_secret import TOKEN as dis_token
-#TOKEN = dis_token
 
 
 # Set up logger
@@ -226,7 +224,6 @@ async def shaxx(ctx):
 @bot.command(pass_context=True)
 async def thanks(ctx):
     await ctx.message.channel.send("You're Welcome {}!".format(ctx.message.author.mention))
-    
-    
-# Start the bot
-bot.run(TOKEN)
+
+if __name__ == "__main__":
+    bot.run(TOKEN)
