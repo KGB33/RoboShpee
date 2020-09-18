@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "discord-bot"
+version = "0.1.0"
+description = ""
+authors = ["KGB33 <github@bassingthwaite.org>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+"discord.py" = {extras = ["voice"], version = "^1.4.1"}
+
+[tool.poetry.dev-dependencies]
+black = "^20.8b1"
+pylint = "^2.6.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0a5"]
+build-backend = "poetry.core.masonry.api"
