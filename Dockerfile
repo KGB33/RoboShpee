@@ -1,4 +1,4 @@
-FROM python:3
+FROM python
 
 ADD 33bot/__init__.py /
 ADD 33bot/constants.py /
