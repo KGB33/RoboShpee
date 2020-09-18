@@ -10,4 +10,4 @@ Discord bot for moderation and role assignment on my personal discord server.
    * gives the user a random overwach hero to buy the golden gun for
  - Screems motivational Shaxx quotes
 
-Written in python 3.7 using the [Discord.py](https://github.com/Rapptz/discord.py "Github Page") rewrite branch
+Written in python 3 using Discord.py
