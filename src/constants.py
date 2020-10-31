@@ -3,7 +3,7 @@ PREFIX = "!3."
 test_PREFIX = "t."
 
 
-OVERWATCH_HEROS = {
+OW_HEROS = {
     1: "Ana",
     2: "Ashe",
     3: "Baptist",
@@ -42,7 +42,8 @@ SHAXX_QUOTES = [
     "Let them burn in your Light",
     "Your strategy is working, keep it up",
     "Enough! This battle was one-sided! You've obliterated them! Love it!",
-    "Do you like it better when Lord Saladin oversees these matches? Do I look like I care? Get back in there!",
+    "Do you like it better when Lord Saladin oversees these matches? "
+    "Do I look like I care? Get back in there!",
     "Your legend grows.",
     "This is amazing!",
     "Wipe. Them. Out.",
@@ -51,7 +52,7 @@ SHAXX_QUOTES = [
     "Heh. You're crushing them. Send them home crying.",
     "YYEESS!",
     "Was that all of them? THAT WAS ALL OF THEM!!",
-    "Stop it! You're SCARING THEM! They'll never want to match with you again!",
+    "Stop! You're SCARING THEM! They'll never want to match with you again!",
     "Work together. And you might survive.",
     "How will you fare against utter chaos?",
     "This isn't a fight. It's a massacre.",
