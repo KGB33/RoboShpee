@@ -4,6 +4,7 @@ import discord
 from discord.ext.commands import command
 
 from src.constants import OW_HEROS, SHAXX_QUOTES
+from src import BASE_DIR
 
 
 @command(pass_context=True)
@@ -216,3 +217,13 @@ async def echo(ctx):
     return await ctx.message.channel.send(
         ctx.message.content.removeprefix(f"{ctx.bot.command_prefix}echo")
     )
+
+
+@command()
+async def cs(ctx):
+    imgs = [
+        "bella_cs_chart.png",
+        "magnizar_cs_chart.png",
+    ]
+    dir_ = BASE_DIR / "static" / random.choice(imgs)
+    return await ctx.message.channel.send(file=discord.File(dir_))
