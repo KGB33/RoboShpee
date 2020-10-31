@@ -5,10 +5,13 @@ import os
 import random
 from Exceptions import ZerothHeroError, TooManyHerosError
 from discord.ext import commands
-from constants import PREFIX, OVERWATCH_HEROS, SHAXX_QUOTES
+from constants import OVERWATCH_HEROS, SHAXX_QUOTES
 
-# get TOKEN
+# get Env Vars
 TOKEN = os.environ["DISCORD_TOKEN"]
+
+if (PREFIX:=os.environ["BOT_PREFIX"]) is None:
+    PREFIX = "!3."
 
 
 # Set up logger
@@ -26,9 +29,10 @@ bot = commands.Bot(command_prefix=PREFIX)
 
 @bot.event
 async def on_ready():
-    print("Logged in as:")
-    print(bot.user.name)
-    print(bot.user.id)
+    print("Logged Successfully")
+    print(f"Bot Name: {bot.user.name}")
+    print(f"Bot ID: {bot.user.id}")
+    print(f"With {PREFIX=}")
     print("--------------\n\n")
 
 
