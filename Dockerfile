@@ -4,9 +4,10 @@ RUN apt-get update && \
         apt-get upgrade -y
 
 RUN python -m pip install --upgrade pip
+RUN python -m pip install poetry
 
+COPY poetry.lock .
 COPY pyproject.toml .
-RUN pip3 install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
