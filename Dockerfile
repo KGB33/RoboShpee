@@ -1,10 +1,15 @@
 FROM python
 
-ADD bot/__init__.py /
-ADD bot/constants.py /
-ADD bot/Exceptions.py /
-ADD bot/main.py /
+RUN apt-get update && \
+        apt-get upgrade -y
 
-RUN pip install discord.py
+RUN python -m pip install --upgrade pip
 
-CMD ["python", "./main.py"]
+COPY pyproject.toml .
+RUN pip3 install poetry
+RUN poetry config virtualenvs.create false
+RUN poetry install --no-dev
+
+COPY src ./src
+
+CMD ["python", "-m", "src"]

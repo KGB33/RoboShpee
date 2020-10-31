@@ -6,8 +6,7 @@ from discord.ext import commands
 
 def create_bot():
     # get Env Vars
-    if (PREFIX := os.environ["BOT_PREFIX"]) is None:
-        PREFIX = "!3."
+    PREFIX = os.getenv("BOT_PREFIX", "!3.")
 
     # Set up logger
     logger = logging.getLogger(__name__)
