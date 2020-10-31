@@ -1,7 +1,10 @@
+from pathlib import Path
 import logging
 import os
 
 from discord.ext import commands
+
+BASE_DIR = Path(__file__).parent
 
 
 def create_bot():
@@ -45,6 +48,7 @@ def create_bot():
         shaxx,
         thanks,
         echo,
+        cs,
     )
 
     bot.add_command(golden_gun)
@@ -57,6 +61,7 @@ def create_bot():
     bot.add_command(shaxx)
     bot.add_command(thanks)
     bot.add_command(echo)
+    bot.add_command(cs)
 
     return bot
 
