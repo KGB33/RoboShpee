@@ -5,12 +5,12 @@ import os
 import random
 from Exceptions import ZerothHeroError, TooManyHerosError
 from discord.ext import commands
-from constants import OVERWATCH_HEROS, SHAXX_QUOTES
+from constants import OW_HEROS, SHAXX_QUOTES
 
 # get Env Vars
 TOKEN = os.environ["DISCORD_TOKEN"]
 
-if (PREFIX:=os.environ["BOT_PREFIX"]) is None:
+if (PREFIX := os.environ["BOT_PREFIX"]) is None:
     PREFIX = "!3."
 
 
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler("33bot.log")
 handler.setLevel(logging.INFO)
-formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
+fmt = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(fmt)
 logger.addHandler(handler)
 
 # Set up discord bot
@@ -47,12 +47,12 @@ async def golden_gun(ctx):
     Choose the next Overwatch Golden Gun for you to get.
     For Example:
             "golden_gun 1 8 15 24 28"
-            Where the numbers are the heros who you already have golden guns for
-            Try "heros" for hero-number pairs
+            Where the numbers are the heros who you already have golden guns
+            for. Try "heros" for hero-number pairs
     """
     try:
         owned = set([abs(int(x)) for x in ctx.message.content.split()[1:]])
-        if len(owned) > len(OVERWATCH_HEROS):
+        if len(owned) > len(OW_HEROS):
             raise TooManyHerosError
         if 0 in owned:
             raise ZerothHeroError
@@ -65,21 +65,17 @@ async def golden_gun(ctx):
         )
     except TooManyHerosError:
         return await ctx.message.channel.send(
-            "{}, No, BOB still isn't a playable hero :(\t"
-            "*(if more heros have been added let KGB know to update his list)*".format(
-                ctx.message.author.mention
-            )
+            f"{ctx.message.author.mention}, Either my list is out of date"
+            "or you've entered too many heros."
         )
     except ZerothHeroError:
         return await ctx.message.channel.send(
             "{}, There isn't a Zeroth Hero".format(ctx.message.author.mention)
         )
     try:
+        hero = OW_HEROS[random.choice(list((OW_HEROS.keys() ^ owned)))]
         return await ctx.message.channel.send(
-            "{}, Your next Golden Gun is for {}!".format(
-                ctx.message.author.mention,
-                OVERWATCH_HEROS[random.choice(list((OVERWATCH_HEROS.keys() ^ owned)))],
-            )
+            f"{ctx.message.author.mention}, Your next Golden Gun is for {hero}"
         )
     except IndexError:
         return await ctx.message.channel.send(
@@ -189,47 +185,45 @@ async def toggle_role(ctx):
     Try "roles" for Currently Toggleable Roles
     """
     # gets toggleable Roles
+    """
     toggleable_roles = []
     for role in ctx.message.channel.guild.roles:
         if str(role.color) == "#206694":
             toggleable_roles += [
                 role.name,
             ]
+    """
+
+    toggleable_roles = {
+        role.name.lower(): role
+        for role in ctx.message.channel.guild.roles
+        if str(role.color) == "#206694"
+    }
 
     try:
-        role_to_toggle = ctx.message.content.split()[1]
+        parsed_roles = [r.lower() for r in ctx.message.content.split()][1:]
+        print(f"{parsed_roles=}")
+        role_to_toggle = toggleable_roles[parsed_roles[0]]
+        print(f"{toggleable_roles=}")
 
-        if (
-            role_to_toggle in toggleable_roles
-        ):  # Checks to See if given role is toggleable
-            role_to_toggle = discord.utils.get(
-                ctx.message.channel.guild.roles, name=role_to_toggle
-            )
-
-            # Toggle role
-            if role_to_toggle in ctx.message.author.roles:  # Removes Role
-                await ctx.message.author.remove_roles(role_to_toggle)
-                await ctx.message.channel.send(
-                    "{}: Role removed".format(ctx.message.author.mention)
-                )
-            else:  # Gives Role
-                await ctx.message.author.add_roles(role_to_toggle)
-                await ctx.message.channel.send(
-                    "{}: Role Added".format(ctx.message.author.mention)
-                )
-
-        # Role is not toggleable
-        else:
+        # Toggle role
+        if role_to_toggle in ctx.message.author.roles:  # Removes Role
+            await ctx.message.author.remove_roles(role_to_toggle)
             await ctx.message.channel.send(
-                'Role Not Found, try "{}roles" for a list of toggleable roles'.format(
-                    PREFIX
-                )
+                "{}: Role removed".format(ctx.message.author.mention)
+            )
+        else:  # Gives Role
+            await ctx.message.author.add_roles(role_to_toggle)
+            await ctx.message.channel.send(
+                "{}: Role Added".format(ctx.message.author.mention)
             )
 
-    # Checks to see if a role was given
     except IndexError:
+        await ctx.message.channel.send("Could not parse roles")
+    except KeyError:
         await ctx.message.channel.send(
-            'You must add a valid role, try "{}help" for help'.format(PREFIX)
+            f'Role Not Found, try "{PREFIX}roles" for '
+            "a list of toggleable roles, be sure to check your spelling too."
         )
 
 
@@ -248,8 +242,8 @@ async def hello(ctx):
 @bot.command(pass_context=True)
 async def heros(ctx):
     msg = ""
-    for k in OVERWATCH_HEROS:
-        msg += "{}: {}\n".format(k, OVERWATCH_HEROS[k])
+    for k in OW_HEROS:
+        msg += "{}: {}\n".format(k, OW_HEROS[k])
     await ctx.message.channel.send(msg)
 
 
@@ -265,14 +259,14 @@ async def shaxx(ctx):
     try:
         voice_channel = ctx.message.author.voice.channel
         vc = await voice_channel.connect()
-    except discord.errors.ClientException:  # Raised if the bot is already in a channel
+    except discord.errors.ClientException:
         await ctx.message.channel.send("LET ME FINISH!")
-    except AttributeError:  # User is not in a VC
-        pass
-    # Play the shaxx quote
+    except AttributeError:
+        pass  # User is not in a VC
     finally:
-        await ctx.message.channel.send("{}".format(random.choice(SHAXX_QUOTES)))
-        await vc.disconnect()
+        await ctx.message.channel.send(f"{random.choice(SHAXX_QUOTES)}")
+        if vc:
+            await vc.disconnect()
 
 
 @bot.command(pass_context=True)
