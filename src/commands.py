@@ -3,8 +3,10 @@ import random
 import discord
 from discord.ext.commands import command
 
-from src.constants import OW_HEROS, SHAXX_QUOTES
-from src import BASE_DIR
+from src import input_validation as inval
+from src import logic
+from src import BASE_DIR, log
+from src.constants import SHAXX_QUOTES, OW_HEROS
 
 
 @command(pass_context=True)
@@ -16,35 +18,12 @@ async def golden_gun(ctx):
             Where the numbers are the heros who you already have golden guns
             for. Try "heros" for hero-number pairs
     """
-    try:
-        owned = set([abs(int(x)) for x in ctx.message.content.split()[1:]])
-        if len(owned) > len(OW_HEROS):
-            return await ctx.message.channel.send(
-                f"{ctx.message.author.mention}, Either my list is out of date"
-                "or you've entered too many heros."
-            )
-        if 0 in owned:
-            return await ctx.message.channel.send(
-                f"{ctx.message.author.mention}, There isn't a Zeroth Hero"
-            )
-    except ValueError:
-        return await ctx.message.channel.send(
-            "{}, arguments must be numeric,"
-            " try 'heros' for a list of hero-number pairs".format(
-                ctx.message.author.mention
-            )
-        )
-    try:
-        hero = OW_HEROS[random.choice(list((OW_HEROS.keys() ^ owned)))]
-        return await ctx.message.channel.send(
-            f"{ctx.message.author.mention}, Your next Golden Gun is for {hero}"
-        )
-    except IndexError:
-        return await ctx.message.channel.send(
-            "{} is a liar!, They don't have every golden gun!".format(
-                ctx.message.author.mention
-            )
-        )
+    owned_heros, err = inval.golden_gun(ctx.message.content, ctx.message.author)
+    if err != None:
+        return await ctx.message.channel.send(err)
+    return await ctx.message.channel.send(
+        f"{ctx.message.author.mention} your next golden gun is for {logic.golden_gun(owned_heros)}"
+    )
 
 
 @command(pass_context=True)
@@ -53,7 +32,7 @@ async def quote(ctx):
     quotes = []
     async for q in discord.iterators.HistoryIterator(quotes_channel, 100):
         quotes.append(q)
-    return await ctx.message.channel.send(random.choice(quotes).content)
+    return await ctx.message.channel.send(logic.quote(quotes))
 
 
 @command(pass_context=True)
@@ -64,25 +43,11 @@ async def random_num(ctx):
             "random_number 3"
             will return a 0, 1, 2, or 3
     """
-    rand_num = None
-    try:
-        max_num = int(ctx.message.content.split()[1])
-    except ValueError:  # Max num isn't an int
-        return await ctx.message.channel.send(
-            "{}, '{}' isn't a number dummy".format(
-                ctx.message.author.mention, ctx.message.content.split()[1]
-            )
-        )
-    try:
-        rand_num = random.randint(0, max_num)
-    except ValueError:  # Max num is negative
-        rand_num = random.randint(max_num, 0)
-    finally:
-        return await ctx.message.channel.send(
-            "{},\tYour random number (between 0 and {}) is: {}".format(
-                ctx.message.author.mention, max_num, rand_num
-            )
-        )
+    nums, err = inval.random_num(ctx.message.content)
+    if err != None:
+        return await ctx.message.channel.send(err)
+    lower, upper = nums
+    return await ctx.message.channel.send(logic.random_num(lower, upper))
 
 
 @command(pass_context=True)
@@ -90,32 +55,8 @@ async def roles(ctx):
     """
     Displays Your current roles as well as the currently toggleable roles
     """
-    current_roles = [r.name for r in reversed(ctx.message.author.roles)][:-1]
-    your_toggleable_roles = []
-    toggleable_roles = []
-
-    for role in ctx.message.channel.guild.roles:
-        if str(role.color) == "#206694":
-            toggleable_roles += [
-                role,
-            ]
-    toggleable_roles.sort()
-
-    for r in reversed(toggleable_roles):
-        if r in current_roles:
-            your_toggleable_roles += [
-                "**" + r.name.strip() + "**",
-            ]
-        else:
-            your_toggleable_roles += [
-                r.name,
-            ]
-
-    msg = "Your Current Roles: {}\nToggleable Roles: {}".format(
-        current_roles, your_toggleable_roles
-    )
     return await ctx.message.channel.send(
-        "{}:\n{}".format(ctx.message.author.mention, msg)
+        "{}:\n{}".format(ctx.message.author.mention, logic.roles(ctx.message))
     )
 
 
@@ -129,46 +70,11 @@ async def toggle_role(ctx):
     Try "roles" for Currently Toggleable Roles
     """
     # gets toggleable Roles
-    """
-    toggleable_roles = []
-    for role in ctx.message.channel.guild.roles:
-        if str(role.color) == "#206694":
-            toggleable_roles += [
-                role.name,
-            ]
-    """
-
-    toggleable_roles = {
-        role.name.lower(): role
-        for role in ctx.message.channel.guild.roles
-        if str(role.color) == "#206694"
-    }
-
-    try:
-        parsed_roles = [r.lower() for r in ctx.message.content.split()][1:]
-        print(f"{parsed_roles=}")
-        role_to_toggle = toggleable_roles[parsed_roles[0]]
-        print(f"{toggleable_roles=}")
-
-        # Toggle role
-        if role_to_toggle in ctx.message.author.roles:  # Removes Role
-            await ctx.message.author.remove_roles(role_to_toggle)
-            await ctx.message.channel.send(
-                "{}: Role removed".format(ctx.message.author.mention)
-            )
-        else:  # Gives Role
-            await ctx.message.author.add_roles(role_to_toggle)
-            await ctx.message.channel.send(
-                "{}: Role Added".format(ctx.message.author.mention)
-            )
-
-    except IndexError:
-        await ctx.message.channel.send("Could not parse roles")
-    except KeyError:
-        await ctx.message.channel.send(
-            f'Role Not Found, try "{ctx.bot.command_prefix}roles" for '
-            "a list of toggleable roles, be sure to check your spelling too."
-        )
+    roles, err = inval.toggle_role(ctx.message.content, ctx.message.channel)
+    if err != None:
+        return await ctx.message.channel.send(err)
+    msg = await logic.toggle_role(ctx.message.author, roles)
+    return await ctx.message.channel.send(msg)
 
 
 @command(pass_context=True)
@@ -221,9 +127,6 @@ async def echo(ctx):
 
 @command()
 async def cs(ctx):
-    imgs = [
-        "bella_cs_chart.png",
-        "magnizar_cs_chart.png",
-    ]
-    dir_ = BASE_DIR / "static" / random.choice(imgs)
+    dir_ = logic.cs()
+    log.info(f"`cs` was called, {dir_} returned")
     return await ctx.message.channel.send(file=discord.File(dir_))
