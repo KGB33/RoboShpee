@@ -3,11 +3,13 @@ Home for pytest fixures
 """
 import pytest
 
+
 @pytest.fixture
 def author():
     """
     Generates a discord-author-like object
     """
+
     class Author:
         def __init__(self, name: str):
             self.name: str = name

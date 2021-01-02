@@ -2,10 +2,8 @@
 This file contains input validation for
 each command.
 """
-import random
-
-from src.constants import OW_HEROS, SHAXX_QUOTES
-from src import BASE_DIR, log, PREFIX
+from src.constants import OW_HEROS
+from src import PREFIX
 
 
 def golden_gun(content, author) -> (set, str):
@@ -20,15 +18,19 @@ def golden_gun(content, author) -> (set, str):
     if invalid_digits := [x for x in owned if not x.isdigit()]:
         return (
             None,
-            f"{author.mention}, the following could not be parsed to an integer.\n"
-            f"Try the `heros` command for a list of valid inputs\n\t{invalid_digits}",
+            f"{author.mention},"
+            f" the following could not be parsed to an integer.\n"
+            f"Try the `heros` command for a list of valid inputs\n"
+            f"\t{invalid_digits}",
         )
 
     if invalid_heros := [x for x in owned if int(x) not in OW_HEROS.keys()]:
         return (
             None,
-            f"{author.mention}, the following digits do not correspond to a valid hero.\n"
-            f"Try the `heros` command for a list of valid inputs\n\t{invalid_heros}",
+            f"{author.mention},"
+            f" the following digits do not correspond to a valid hero.\n"
+            f"Try the `heros` command for a list of valid inputs\n"
+            f"\t{invalid_heros}",
         )
     return {int(x) for x in owned}, None
 
@@ -47,13 +49,14 @@ def random_num(content: str) -> ((int, int), str):
     except ValueError:
         return None, f"Could not parse `{content.split()}` to integers"
 
-    l = len(nums)
-    if l not in (1, 2):
+    length = len(nums)
+    if length not in (1, 2):
         return (
             None,
-            f"Parsed an incorrect number of digits, expected one or two, got {l}.",
+            f"Parsed an incorrect number of digits,"
+            f" expected one or two, got {length}.",
         )
-    if len(nums) == 1:
+    if length == 1:
         nums.append(0)
     return tuple(sorted(nums)), None
 
@@ -83,7 +86,8 @@ def toggle_role(content, channel) -> (list, str):
     if invalid_roles := parsed_roles - toggleable_roles.keys():
         return (
             None,
-            f"The following roles are invalid, please check your spelling and try again\n{invalid_roles}",
+            f"The following roles are invalid, please check your spelling and "
+            f"try again\n{invalid_roles}",
         )
     return [
         r for r in toggleable_roles.values() if r.name.lower() in parsed_roles

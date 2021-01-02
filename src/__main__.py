@@ -11,4 +11,3 @@ try:
     bot.run(TOKEN)
 except Exception as e:
     log.error(f"Fatal exception {e}, exiting now...", exc_info=True)
-
