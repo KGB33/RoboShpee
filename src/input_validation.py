@@ -20,8 +20,15 @@ def golden_gun(content, author) -> (set, str):
     if invalid_digits := [x for x in owned if not x.isdigit()]:
         return (
             None,
-            f"{author.mention}, the following could not be parsed.\n"
-            f"Try the `heros` command for a list of valid inputs\n{invalid_digits}",
+            f"{author.mention}, the following could not be parsed to an integer.\n"
+            f"Try the `heros` command for a list of valid inputs\n\t{invalid_digits}",
+        )
+
+    if invalid_heros := [x for x in owned if int(x) not in OW_HEROS.keys()]:
+        return (
+            None,
+            f"{author.mention}, the following digits do not correspond to a valid hero.\n"
+            f"Try the `heros` command for a list of valid inputs\n\t{invalid_heros}",
         )
     return {int(x) for x in owned}, None
 
@@ -78,4 +85,6 @@ def toggle_role(content, channel) -> (list, str):
             None,
             f"The following roles are invalid, please check your spelling and try again\n{invalid_roles}",
         )
-    return [r for r in toggleable_roles.values() if r.name.lower() in parsed_roles], None
+    return [
+        r for r in toggleable_roles.values() if r.name.lower() in parsed_roles
+    ], None
