@@ -5,7 +5,7 @@ from discord.ext.commands import command
 
 from src import input_validation as inval
 from src import logic
-from src import BASE_DIR, log
+from src import log
 from src.constants import SHAXX_QUOTES, OW_HEROS
 
 
@@ -19,7 +19,7 @@ async def golden_gun(ctx):
             for. Try "heros" for hero-number pairs
     """
     owned_heros, err = inval.golden_gun(ctx.message.content, ctx.message.author)
-    if err != None:
+    if err is not None:
         return await ctx.message.channel.send(err)
     return await ctx.message.channel.send(
         f"{ctx.message.author.mention} your next golden gun is for {logic.golden_gun(owned_heros)}"
@@ -44,7 +44,7 @@ async def random_num(ctx):
             will return a 0, 1, 2, or 3
     """
     nums, err = inval.random_num(ctx.message.content)
-    if err != None:
+    if err is not None:
         return await ctx.message.channel.send(err)
     lower, upper = nums
     return await ctx.message.channel.send(logic.random_num(lower, upper))
@@ -71,7 +71,7 @@ async def toggle_role(ctx):
     """
     # gets toggleable Roles
     roles, err = inval.toggle_role(ctx.message.content, ctx.message.channel)
-    if err != None:
+    if err is not None:
         return await ctx.message.channel.send(err)
     msg = await logic.toggle_role(ctx.message.author, roles)
     return await ctx.message.channel.send(msg)

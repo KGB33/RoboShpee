@@ -3,11 +3,12 @@ This file contains the logic behind each
 command defined in `commands.py
 """
 from prettytable import PrettyTable
+import discord
 
 import random
 
 from src.constants import OW_HEROS, SHAXX_QUOTES
-from src import BASE_DIR, log
+from src import BASE_DIR
 
 
 def golden_gun(owned: set):
@@ -25,7 +26,10 @@ def random_num(lower: int, upper: int) -> str:
             "random_number 3"
             will return a 0, 1, 2, or 3
     """
-    return f"Your random number (between {lower} and {upper}) is: {random.randint(lower, upper)}"
+    return (
+        f"Your random number (between {lower} and {upper}) is: "
+        f"{random.randint(lower, upper)}"
+    )
 
 
 def roles(message):
@@ -35,7 +39,9 @@ def roles(message):
     # Generate Data
     toggleable_roles = {
         # reversed puts the roles in alphabetical order for some reason
-        r: False for r in reversed(message.channel.guild.roles) if str(r.color) == "#206694"
+        r: False
+        for r in reversed(message.channel.guild.roles)
+        if str(r.color) == "#206694"
     }
     for k in toggleable_roles.keys():
         if k in message.author.roles:
@@ -47,7 +53,7 @@ def roles(message):
     table.field_names = ["Toggleable Roles", "Status"]
 
     for k, v in toggleable_roles.items():
-        table.add_row([k.name, '✅' if v else ''])
+        table.add_row([k.name, "✅" if v else ""])
 
     return "```\n" + table.get_string() + "\n```"
 
@@ -62,6 +68,7 @@ async def toggle_role(author, roles: list):
             out += f"\t{r.name} added\n"
             await author.add_roles(r)
     return out
+
 
 async def shaxx(ctx):
     # join the VC
