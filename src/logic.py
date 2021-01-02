@@ -79,7 +79,7 @@ async def shaxx(ctx):
             await vc.disconnect()
 
 
-def cs() -> os.Pathlib:
+def cs():
     imgs = [
         "bella_cs_chart.png",
         "magnizar_cs_chart.png",
