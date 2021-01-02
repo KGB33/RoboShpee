@@ -15,11 +15,6 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.790
-    hooks:
-      - id: mypy
-
   - repo: https://gitlab.com/pycqa/flake8
     rev: master # pick a git hash / tag to point to
     hooks:
