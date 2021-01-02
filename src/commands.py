@@ -55,32 +55,8 @@ async def roles(ctx):
     """
     Displays Your current roles as well as the currently toggleable roles
     """
-    current_roles = [r.name for r in reversed(ctx.message.author.roles)][:-1]
-    your_toggleable_roles = []
-    toggleable_roles = []
-
-    for role in ctx.message.channel.guild.roles:
-        if str(role.color) == "#206694":
-            toggleable_roles += [
-                role,
-            ]
-    toggleable_roles.sort()
-
-    for r in reversed(toggleable_roles):
-        if r in current_roles:
-            your_toggleable_roles += [
-                "**" + r.name.strip() + "**",
-            ]
-        else:
-            your_toggleable_roles += [
-                r.name,
-            ]
-
-    msg = "Your Current Roles: {}\nToggleable Roles: {}".format(
-        current_roles, your_toggleable_roles
-    )
     return await ctx.message.channel.send(
-        "{}:\n{}".format(ctx.message.author.mention, msg)
+        "{}:\n{}".format(ctx.message.author.mention, logic.roles(ctx.message))
     )
 
 
@@ -94,36 +70,11 @@ async def toggle_role(ctx):
     Try "roles" for Currently Toggleable Roles
     """
     # gets toggleable Roles
-    toggleable_roles = {
-        role.name.lower(): role
-        for role in ctx.message.channel.guild.roles
-        if str(role.color) == "#206694"
-    }
-
-    try:
-        parsed_roles = [r.lower() for r in ctx.message.content.split()][1:]
-        log.info(f"{parsed_roles=}")
-        role_to_toggle = toggleable_roles[parsed_roles[0]]
-        log.info(f"{toggleable_roles=}")
-
-        # Toggle role
-        if role_to_toggle in ctx.message.author.roles:  # Removes Role
-            await ctx.message.author.remove_roles(role_to_toggle)
-            await ctx.message.channel.send(
-                "{}: Role removed".format(ctx.message.author.mention)
-            )
-        else:  # Gives Role
-            await ctx.message.author.add_roles(role_to_toggle)
-            await ctx.message.channel.send(
-                "{}: Role Added".format(ctx.message.author.mention)
-            )
-
-    except IndexError:
-        await ctx.message.channel.send("Could not parse roles")
-    except KeyError:
-        keyErrMsg = f'Role Not Found, try "{ctx.bot.command_prefix}roles" for a list of toggleable roles, be sure to check your spelling too.'
-        log.warn(keyErrMsg)
-        await ctx.message.channel.send(keyErrMsg)
+    roles, err = inval.toggle_role(ctx.message.content, ctx.message.channel)
+    if err != None:
+        return await ctx.message.channel.send(err)
+    msg = await logic.toggle_role(ctx.message.author, roles)
+    return await ctx.message.channel.send(msg)
 
 
 @command(pass_context=True)
@@ -176,10 +127,6 @@ async def echo(ctx):
 
 @command()
 async def cs(ctx):
-    imgs = [
-        "bella_cs_chart.png",
-        "magnizar_cs_chart.png",
-    ]
-    dir_ = BASE_DIR / "static" / random.choice(imgs)
+    dir_ = logic.cs()
     log.info(f"`cs` was called, {dir_} returned")
     return await ctx.message.channel.send(file=discord.File(dir_))

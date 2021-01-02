@@ -51,15 +51,19 @@ def random_num(content: str) -> ((int, int), str):
     return tuple(sorted(nums)), None
 
 
-def toggle_role(content, channel) -> (set, str):
+def toggle_role(content, channel) -> (list, str):
     """
-    Toggles given role on or off
-    for example:
-            "toggle_role overwatch"
-            will add or remove the overwatch role
-    Try "roles" for Currently Toggleable Roles
-    """
+    First it parses the input into a list of roles.
+    Then it ensures that each role is valid.
 
+    If all roles are valid:
+        the first return value is a list of roles
+        and the second is None
+    else:
+        the first return value is None,
+        and the second is a error message.
+    """
+    content = content.removeprefix(f"{PREFIX}toggle_role")
     # gets toggleable Roles
     toggleable_roles = {
         role.name.lower(): role
@@ -69,9 +73,9 @@ def toggle_role(content, channel) -> (set, str):
 
     # parse input
     parsed_roles = {r.lower() for r in content.split()}
-    if invalid_roles := parsed_roles - toggleable_roles:
+    if invalid_roles := parsed_roles - toggleable_roles.keys():
         return (
             None,
             f"The following roles are invalid, please check your spelling and try again\n{invalid_roles}",
         )
-    return parsed_roles, None
+    return [r for r in toggleable_roles.values() if r.name.lower() in parsed_roles], None
