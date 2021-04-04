@@ -1,15 +1,16 @@
 import random
 
 import discord
-from discord.ext.commands import command
 
 from src import input_validation as inval
 from src import logic
 from src import log
+from src import db, bot
 from src.constants import SHAXX_QUOTES, OW_HEROS
+from src.bungie.models import BungieUser
 
 
-@command(pass_context=True)
+@bot.command()
 async def golden_gun(ctx):
     """
     Choose the next Overwatch Golden Gun for you to get.
@@ -26,7 +27,7 @@ async def golden_gun(ctx):
     )
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def quote(ctx):
     quotes_channel = discord.utils.get(ctx.guild.channels, name="quotes")
     quotes = []
@@ -35,7 +36,7 @@ async def quote(ctx):
     return await ctx.message.channel.send(logic.quote(quotes))
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def random_num(ctx):
     """
     Gets a Random integer between 0 and given max
@@ -50,7 +51,7 @@ async def random_num(ctx):
     return await ctx.message.channel.send(logic.random_num(lower, upper))
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def roles(ctx):
     """
     Displays Your current roles as well as the currently toggleable roles
@@ -60,7 +61,7 @@ async def roles(ctx):
     )
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def toggle_role(ctx):
     """
     Toggles given role on or off
@@ -77,7 +78,7 @@ async def toggle_role(ctx):
     return await ctx.message.channel.send(msg)
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def hello(ctx):
     """
     Says Hello to whomever called it
@@ -86,7 +87,7 @@ async def hello(ctx):
     await ctx.message.channel.send(msg)
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def heros(ctx):
     msg = ""
     for k in OW_HEROS:
@@ -94,7 +95,7 @@ async def heros(ctx):
     await ctx.message.channel.send(msg)
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def shaxx(ctx):
     # join the VC
     vc = None
@@ -111,22 +112,45 @@ async def shaxx(ctx):
             await vc.disconnect()
 
 
-@command(pass_context=True)
+@bot.command(pass_context=True)
 async def thanks(ctx):
     await ctx.message.channel.send(
         "You're Welcome {}!".format(ctx.message.author.mention)
     )
 
 
-@command()
+@bot.command()
 async def echo(ctx):
     return await ctx.message.channel.send(
         ctx.message.content.removeprefix(f"{ctx.bot.command_prefix}echo")
     )
 
 
-@command()
+@bot.command()
 async def cs(ctx):
     dir_ = logic.cs()
     log.info(f"`cs` was called, {dir_} returned")
     return await ctx.message.channel.send(file=discord.File(dir_))
+
+
+@bot.command()
+async def register(ctx):
+    # Check DB to see if User is already registered.
+    if user := db.get(ctx.message.author.id) is not None:
+        return await ctx.message.author.send("You are already registered.")
+    await ctx.message.channel.send(
+        "Check your direct messages for Destiny Registration info."
+    )
+
+    async def prompt(message):
+        await ctx.author.send(message)
+        response = await bot.wait_for(
+            "message", check=lambda msg: msg.author == ctx.author
+        )
+        return response.content
+
+    code = await BungieUser._get_user_code(prompt=prompt)
+    token = BungieUser._get_auth_token(code)
+    user = BungieUser.init_from_auth_token(token, ctx.author.id)
+    user.save_to_db()
+    return await ctx.author.send("You are now registered")
