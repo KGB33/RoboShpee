@@ -2,10 +2,7 @@ import sys
 import logging
 from logging import handlers
 
-from roboshpee import BASE_DIR
-
-
-TRACE_LEVEL = 5
+from roboshpee.constants import BASE_DIR, TRACE_LEVEL
 
 
 def setup() -> None:
@@ -34,6 +31,7 @@ def setup() -> None:
     root_log.addHandler(stdout_handler)
 
     logging.getLogger("discord").setLevel(logging.WARNING)
+    logging.getLogger("bot").setLevel(logging.INFO)
 
     # Uncomment / add more as needed
     # logging.getLogger("websockets").setLevel(logging.WARNING)
