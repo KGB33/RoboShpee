@@ -35,6 +35,19 @@ async def taco_time(ctx, delta: Optional[int]):
     await ctx.send(file=discord.File(dir_))
 
 
+@commands.command()
+async def quote(ctx):
+    """
+    Fetches a random quote from the #quotes channel
+    """
+    quotes_channel = discord.utils.get(ctx.guild.channels, name="quotes")
+    quote = random.choice(
+        [q async for q in discord.iterators.HistoryIterator(quotes_channel, 200)]
+    )
+    await ctx.send(quote.content)
+
+
 def setup(bot: Bot) -> None:
     bot.add_command(cs)
     bot.add_command(taco_time)
+    bot.add_command(quote)
