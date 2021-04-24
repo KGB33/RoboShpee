@@ -29,7 +29,11 @@ async def role(ctx):
     table.field_names = ["Toggleable Roles", "Status"]
 
     for k, v in toggleable_roles.items():
-        table.add_row([k.name, "✅" if v else ""])
+        # This uses a white_check_mark to denote if the user has the role
+        # It might look weird on devices without that codepoint
+        # If you're unsure if its working check the bot's response on
+        # your phone
+        table.add_row([k.name, "✅" if v else "  "])
 
     return await ctx.send(f"{ctx.author.mention}\n```\n" + table.get_string() + "\n```")
 
@@ -68,17 +72,56 @@ async def toggle(ctx, *roles):
 async def add(ctx, *roles):
     """
     Add yourself to the supplied roles.
+
+    Examples:
+        >>> role toggle Overwatch TeamFortressTwo
+        Added Overwatch
+        Added TeamFortressTwo
     """
-    roles
-    print(f"Added: {roles}")
+    roles, inval_roles = validate_role_input(roles, ctx.guild)
+    if inval_roles:
+        inval_roles_formatted = " ".join(f"`{r}`" for r in reversed(inval_roles))
+        await ctx.send(
+            "The following roles are invalid, please check your spelling"
+            f" and try again\n\t {inval_roles_formatted}"
+        )
+    author = ctx.message.author
+    msg = f"{author.mention}:\n"
+    for r in roles:
+        if r in author.roles:  # Removes Role
+            msg += f"\tYou already have this role: {r.name}\n"
+        else:  # Gives Role
+            msg += f"\tAdded:   {r.name}\n"
+            await author.add_roles(r)
+    return await ctx.message.channel.send(msg)
 
 
-@role.command
+@role.command()
 async def remove(ctx, *roles):
     """
     Remove yourself from the supplied roles.
+
+    Examples:
+        >>> role toggle Overwatch TeamFortressTwo
+        Removed: Overwatch
+        Removed: TeamFortressTwo
     """
-    print(f"removed: {roles}")
+    roles, inval_roles = validate_role_input(roles, ctx.guild)
+    if inval_roles:
+        inval_roles_formatted = " ".join(f"`{r}`" for r in reversed(inval_roles))
+        await ctx.send(
+            "The following roles are invalid, please check your spelling"
+            f" and try again\n\t {inval_roles_formatted}"
+        )
+    author = ctx.message.author
+    msg = f"{author.mention}:\n"
+    for r in roles:
+        if r in author.roles:  # Removes Role
+            msg += f"\tRemoved: {r.name}\n"
+            await author.remove_roles(r)
+        else:
+            msg += f"\tYou don't have the following role:  {r.name}\n"
+    return await ctx.message.channel.send(msg)
 
 
 def validate_role_input(
@@ -97,7 +140,7 @@ def validate_role_input(
     }
     # parse input
     parsed_roles = {r.lower() for r in roles}
-    invalid_roles = parsed_roles - toggleable_roles.keys()
+    invalid_roles = list(parsed_roles - toggleable_roles.keys())
     valid_roles = [
         r for r in toggleable_roles.values() if r.name.lower() in parsed_roles
     ]
