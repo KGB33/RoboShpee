@@ -11,6 +11,6 @@ COPY pyproject.toml .
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
-COPY src ./src
+COPY roboshpee ./roboshpee
 
-CMD ["python", "-m", "src"]
+CMD ["python", "-m", "roboshpee"]
