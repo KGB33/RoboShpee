@@ -36,7 +36,7 @@ Then, run via the `start.sh` script (requires Docker), or manually:
 
 ```bash
 python -m venv .venv
-. .venv/bin/activate && python -m pip install --upgrade pip'
+. .venv/bin/activate && python -m pip install --upgrade pip
 pip install pyproject.toml
 
 python -m roboshpee
