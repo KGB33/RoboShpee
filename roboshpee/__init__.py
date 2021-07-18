@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from roboshpee import log
 
@@ -7,4 +7,4 @@ if TYPE_CHECKING:
 
 log.setup()
 
-instance: "Bot" = None  # Global Bot instance
+instance: Optional["Bot"] = None  # Global Bot instance
