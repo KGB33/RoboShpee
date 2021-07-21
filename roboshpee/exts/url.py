@@ -15,8 +15,18 @@ API_URL = "http://0.0.0.0:8080/api/v1"
 
 @commands.group()
 async def url(ctx):
+    # Check to see if the url server is up before running any commands
+    try:
+        requests.get(API_URL)
+    except requests.exceptions.ConnectionError:
+        ctx.invoked_subcommand = None
+        return await ctx.send(
+            "The URL service is not running. No `url` commands will work."
+        )
+
     if ctx.invoked_subcommand is not None:
         return
+
     r = requests.get(API_URL + "/r")
     data = r.json()
     if isinstance(data, dict):
@@ -34,7 +44,7 @@ async def url(ctx):
 @url.command()
 async def redirect(ctx, key: str):
     """
-    Retreaves the destination URL matching
+    Retrieves the destination URL matching
     the key/shortened URL provided
 
     Examples:
@@ -48,7 +58,7 @@ async def create(ctx, *args):
     """
     Creates a shortened URL based off the information provided.
     Format:
-        url create [key] destination_ulr
+        url create [key] destination_url
 
     Examples:
         >>> url create FizzBuzz https://www.youtube.com/watch?v=QPZ0pIK_wsc
