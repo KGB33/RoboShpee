@@ -1,5 +1,5 @@
-import sys
 import logging
+import sys
 from logging import handlers
 
 from roboshpee.constants import BASE_DIR, TRACE_LEVEL

@@ -17,6 +17,7 @@ black = "^20.8b1"
 pylint = "^2.6.0"
 pytest = "^6.2.1"
 hypothesis = "^5.43.5"
+isort = "^5.9.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
@@ -26,3 +27,7 @@ build-backend = "poetry.core.masonry.api"
 testpaths = [
     "tests",
 ]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
