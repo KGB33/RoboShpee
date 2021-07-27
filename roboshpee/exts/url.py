@@ -1,6 +1,5 @@
 import requests
 from discord.ext import commands
-
 from prettytable import PrettyTable
 
 from roboshpee.bot import Bot

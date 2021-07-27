@@ -1,9 +1,9 @@
-from typing import Optional, Iterable
+from typing import Iterable, Optional
 
 import discord
 from discord.ext import commands
-from prettytable import PrettyTable
 from fuzzywuzzy import process
+from prettytable import PrettyTable
 
 from roboshpee.bot import Bot
 from roboshpee.utils import ttl_cache

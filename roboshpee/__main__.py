@@ -1,8 +1,8 @@
-import os
 import logging
+import os
 
-from roboshpee.bot import Bot
 from roboshpee import instance
+from roboshpee.bot import Bot
 from roboshpee.log import setup as logging_setup
 
 logging_setup()
