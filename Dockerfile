@@ -1,7 +1,8 @@
-FROM python
+FROM python:3-slim
 
 RUN apt-get update && \
         apt-get upgrade -y
+RUN apt-get install gcc -y
 
 RUN python -m pip install --upgrade pip
 RUN python -m pip install poetry
