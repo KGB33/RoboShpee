@@ -7,9 +7,14 @@ from fuzzywuzzy import process
 from prettytable import PrettyTable
 
 from roboshpee.bot import Bot
-from roboshpee.constants import ELDER_SHPEE, MASTER_SHPEE, SENOR_SHPEE
+from roboshpee.constants import (
+    ELDER_SHPEE,
+    MASTER_SHPEE,
+    SENOR_SHPEE,
+    TOGGLEABLE_GAME_ROLE_COLOR,
+)
 from roboshpee.security import minimum_role_permission
-from roboshpee.utils import ttl_cache
+from roboshpee.utils import msg_owner, ttl_cache
 
 
 @commands.group()
@@ -77,6 +82,7 @@ async def create(ctx, name):
 
     # Wait for reactions until the required number of votes has been reached.
     while (vote_state["yes"] < REQUIRED_VOTES) and (vote_state["no"] < REQUIRED_VOTES):
+        # TODO: Fix race conditions when multiple people react at almost the same time
         reaction_group = {
             asyncio.create_task(ctx.bot.wait_for("raw_reaction_add", check=check)),
             asyncio.create_task(ctx.bot.wait_for("raw_reaction_remove", check=check)),
@@ -120,7 +126,21 @@ async def create(ctx, name):
         )
     if result:
         # Create the Role
-        await ctx.send(f"Result: {result} -- Role Creation WIP")
+        await _create_role(ctx, name)
+
+
+async def _create_role(ctx, name: str):
+    """
+    Handles the creation and permissions of
+    new roles created for @game mentions.
+    """
+    await ctx.guild.create_role(
+        reason="Created by vote.",
+        name=name,
+        mentionable=True,
+        color=TOGGLEABLE_GAME_ROLE_COLOR,
+    )
+    await msg_owner(ctx, f"A new role was created `{name}`")
 
 
 @role.command()
@@ -217,7 +237,9 @@ async def _handle_invalid_roles(ctx, roles: Iterable[str]):
 @ttl_cache()
 def _fetch_toggleable_roles(guild: discord.Guild) -> dict[str, discord.Role]:
     return {
-        role.name.lower(): role for role in guild.roles if str(role.color) == "#206694"
+        role.name.lower(): role
+        for role in guild.roles
+        if role.color == TOGGLEABLE_GAME_ROLE_COLOR
     }
 
 
