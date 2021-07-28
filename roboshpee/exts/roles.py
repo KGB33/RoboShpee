@@ -97,10 +97,11 @@ async def create(ctx, name):
             vote_state["no"] = SENTINAL_VOTES
             msg_template += f"\n**Withdrawn** by {ctx.author}"
         else:
+            voting_user = await ctx.guild.fetch_member(reaction.user_id)
             if reaction.event_type == "REACTION_ADD":
-                vote_state[yei_or_nei] += vote_values.get(reaction.user_id.roles[-1], 1)
+                vote_state[yei_or_nei] += vote_values.get(voting_user.roles[-1].id, 1)
             elif reaction.event_type == "REACTION_REMOVE":
-                vote_state[yei_or_nei] -= vote_values.get(reaction.user_id.roles[-1], 1)
+                vote_state[yei_or_nei] -= vote_values.get(voting_user.roles[-1].id, 1)
 
         await msg.edit(
             content=msg_template.format(
