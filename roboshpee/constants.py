@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from typing import Final
 
+import discord
+
 BASE_DIR: Final = Path(__file__).parent
 PREFIX: Final = os.getenv("BOT_PREFIX", "!3.")
 
@@ -12,3 +14,6 @@ TRACE_LEVEL: Final = 5
 MASTER_SHPEE: Final = 279665426718392320
 ELDER_SHPEE: Final = 757592645185962074
 SENOR_SHPEE: Final = 791704460308119563
+
+# @game Role color
+TOGGLEABLE_GAME_ROLE_COLOR: Final = discord.Color.dark_blue()
