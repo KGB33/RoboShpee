@@ -1,4 +1,5 @@
-from typing import Iterable, Optional
+import asyncio
+from typing import Final, Iterable, Optional
 
 import discord
 from discord.ext import commands
@@ -6,6 +7,8 @@ from fuzzywuzzy import process
 from prettytable import PrettyTable
 
 from roboshpee.bot import Bot
+from roboshpee.constants import ELDER_SHPEE, MASTER_SHPEE, SENOR_SHPEE
+from roboshpee.security import minimum_role_permission
 from roboshpee.utils import ttl_cache
 
 
@@ -34,6 +37,89 @@ async def role(ctx):
         table.add_row([role.name, "✅" if toggleable_roles[role] else "  "])
 
     return await ctx.send(f"```\n{ctx.author.name}\n" + table.get_string() + "\n```")
+
+
+@role.command()
+@minimum_role_permission(ELDER_SHPEE)
+async def create(ctx, name):
+    """
+    Creates a new @Game role.
+
+    Requires Elder Shpee role or greater to start a vote.
+    """
+    REQUIRED_VOTES: Final = 12
+    SENTINAL_VOTES: Final = 333
+    vote_state = {"yes": 0, "no": 0}
+    vote_values = {MASTER_SHPEE: 4, ELDER_SHPEE: 3, SENOR_SHPEE: 2}
+    msg_template = (
+        "Vote to ✅-Yes or ❌-No to create _{name}_."
+        "\n\nCurrent Votes:"
+        "\n\tYes: {yes_votes}/{REQUIRED_VOTES}"
+        "\n\tNo: {no_votes}/{REQUIRED_VOTES}"
+    )
+    msg = await ctx.send(
+        msg_template.format(
+            name=name,
+            REQUIRED_VOTES=REQUIRED_VOTES,
+            yes_votes=vote_state["yes"],
+            no_votes=vote_state["no"],
+        )
+    )
+    await msg.add_reaction("✅")
+    await msg.add_reaction("❌")
+
+    def check(r):
+        return (
+            (str(r.emoji) in ("❌", "✅"))
+            and (r.message_id == msg.id)
+            and (r.user_id != ctx.bot.user.id)
+        )
+
+    # Wait for reactions until the required number of votes has been reached.
+    while (vote_state["yes"] < REQUIRED_VOTES) and (vote_state["no"] < REQUIRED_VOTES):
+        reaction_group = {
+            asyncio.create_task(ctx.bot.wait_for("raw_reaction_add", check=check)),
+            asyncio.create_task(ctx.bot.wait_for("raw_reaction_remove", check=check)),
+        }
+        finished, _ = await asyncio.wait(
+            reaction_group, return_when=asyncio.FIRST_COMPLETED
+        )
+        assert len(finished) == 1
+        reaction = list(finished)[0].result()
+
+        yei_or_nei = "yes" if str(reaction.emoji) == "✅" else "no"
+        if ctx.guild.owner_id == reaction.user_id:
+            vote_state[yei_or_nei] = SENTINAL_VOTES
+            msg_template += (
+                f"\n**{'Approved' if yei_or_nei == 'yes' else 'Rejected'}** by KGB.33"
+            )
+        elif (ctx.author.id == reaction.user_id) and (yei_or_nei == "no"):
+            vote_state["no"] = SENTINAL_VOTES
+            msg_template += f"\n**Withdrawn** by {ctx.author}"
+        else:
+            if reaction.event_type == "REACTION_ADD":
+                vote_state[yei_or_nei] += vote_values.get(reaction.user_id.roles[-1], 1)
+            elif reaction.event_type == "REACTION_REMOVE":
+                vote_state[yei_or_nei] -= vote_values.get(reaction.user_id.roles[-1], 1)
+
+        await msg.edit(
+            content=msg_template.format(
+                name=name,
+                REQUIRED_VOTES=REQUIRED_VOTES,
+                yes_votes=vote_state["yes"],
+                no_votes=vote_state["no"],
+            )
+        )
+    result = vote_state["yes"] > vote_state["no"]
+    if SENTINAL_VOTES not in vote_state.values():
+        await msg.edit(
+            content=(
+                msg.content + f"\n**{'Approved' if result else 'Rejected'}** by Vote"
+            )
+        )
+    if result:
+        # Create the Role
+        await ctx.send(f"Result: {result} -- Role Creation WIP")
 
 
 @role.command()
