@@ -10,9 +10,11 @@ from roboshpee.bot import Bot
 from roboshpee.constants import (
     ELDER_SHPEE,
     MASTER_SHPEE,
+    OWNER,
     SENOR_SHPEE,
     TOGGLEABLE_GAME_ROLE_COLOR,
 )
+from roboshpee.menu import ReactionMenu, ReactionMenuOption
 from roboshpee.security import minimum_role_permission
 from roboshpee.utils import msg_owner, ttl_cache
 
@@ -53,80 +55,73 @@ async def create(ctx, name):
     Requires Elder Shpee role or greater to start a vote.
     """
     REQUIRED_VOTES: Final = 12
-    SENTINAL_VOTES: Final = 333
-    vote_state = {"yes": 0, "no": 0}
-    vote_values = {MASTER_SHPEE: 4, ELDER_SHPEE: 3, SENOR_SHPEE: 2}
-    msg_template = (
-        "Vote to ✅-Yes or ❌-No to create _{name}_."
-        "\n\nCurrent Votes:"
-        "\n\tYes: {yes_votes}/{REQUIRED_VOTES}"
-        "\n\tNo: {no_votes}/{REQUIRED_VOTES}"
+    YES_IDX, NO_IDX = 0, 1
+    YES_NAME, NO_NAME = "✅-Yes", "❌-No"
+
+    embed = discord.Embed(
+        title=f"Create new role `@{name}`?",
+        description="Vote ✅-Yes or ❌-No to create the new role",
+        color=TOGGLEABLE_GAME_ROLE_COLOR,
     )
-    msg = await ctx.send(
-        msg_template.format(
-            name=name,
-            REQUIRED_VOTES=REQUIRED_VOTES,
-            yes_votes=vote_state["yes"],
-            no_votes=vote_state["no"],
-        )
+    embed.insert_field_at(YES_IDX, name=YES_NAME, value="No Votes Yet.")
+    embed.insert_field_at(NO_IDX, name=NO_NAME, value="No Votes Yet.")
+    msg = await ctx.send(embed=embed)
+
+    def on_reaction_event_factory(embed, embed_idx, msg, name: str, value: str):
+        async def wrapped(self: ReactionMenuOption):
+            embed.set_field_at(
+                index=embed_idx, name=name, value=value.format(self.state)
+            )
+            await msg.edit(embed=embed)
+
+        return wrapped
+
+    def generate_reation_value(ctx):
+        async def calculate_reaction_value(r: discord.RawReactionActionEvent) -> int:
+            voting_user = await ctx.guild.fetch_member(r.user_id)
+            vote_values = {
+                OWNER: REQUIRED_VOTES,
+                MASTER_SHPEE: 4,
+                ELDER_SHPEE: 3,
+                SENOR_SHPEE: 2,
+            }
+            return vote_values.get(voting_user.roles[-1].id, 1)
+
+        return calculate_reaction_value
+
+    YES_reaction_event = on_reaction_event_factory(
+        embed, YES_IDX, msg, YES_NAME, value="{}/" + str(REQUIRED_VOTES)
     )
-    await msg.add_reaction("✅")
-    await msg.add_reaction("❌")
+    NO_reaction_event = on_reaction_event_factory(
+        embed, NO_IDX, msg, NO_NAME, value="{}/" + str(REQUIRED_VOTES)
+    )
 
-    def check(r):
-        return (
-            (str(r.emoji) in ("❌", "✅"))
-            and (r.message_id == msg.id)
-            and (r.user_id != ctx.bot.user.id)
-        )
+    calc_value_func = generate_reation_value(ctx)
 
-    # Wait for reactions until the required number of votes has been reached.
-    while (vote_state["yes"] < REQUIRED_VOTES) and (vote_state["no"] < REQUIRED_VOTES):
-        # TODO: Fix race conditions when multiple people react at almost the same time
-        reaction_group = {
-            asyncio.create_task(ctx.bot.wait_for("raw_reaction_add", check=check)),
-            asyncio.create_task(ctx.bot.wait_for("raw_reaction_remove", check=check)),
-        }
-        finished, _ = await asyncio.wait(
-            reaction_group, return_when=asyncio.FIRST_COMPLETED
-        )
-        assert len(finished) == 1
-        reaction = list(finished)[0].result()
+    def generate_yes_callback(ctx, r_name):
+        async def wrapped():
+            await _create_role(ctx, r_name)
 
-        yei_or_nei = "yes" if str(reaction.emoji) == "✅" else "no"
-        if ctx.guild.owner_id == reaction.user_id:
-            vote_state[yei_or_nei] = SENTINAL_VOTES
-            msg_template += (
-                f"\n**{'Approved' if yei_or_nei == 'yes' else 'Rejected'}** by KGB.33"
-            )
-        elif (ctx.author.id == reaction.user_id) and (yei_or_nei == "no"):
-            vote_state["no"] = SENTINAL_VOTES
-            msg_template += f"\n**Withdrawn** by {ctx.author}"
-        else:
-            voting_user = await ctx.guild.fetch_member(reaction.user_id)
-            if reaction.event_type == "REACTION_ADD":
-                vote_state[yei_or_nei] += vote_values.get(voting_user.roles[-1].id, 1)
-            elif reaction.event_type == "REACTION_REMOVE":
-                vote_state[yei_or_nei] -= vote_values.get(voting_user.roles[-1].id, 1)
+        return wrapped
 
-        await msg.edit(
-            content=msg_template.format(
-                name=name,
-                REQUIRED_VOTES=REQUIRED_VOTES,
-                yes_votes=vote_state["yes"],
-                no_votes=vote_state["no"],
-            )
-        )
-    result = vote_state["yes"] > vote_state["no"]
-    if SENTINAL_VOTES not in vote_state.values():
-        await msg.edit(
-            content=(
-                msg.content + f"\n**{'Approved' if result else 'Rejected'}** by Vote"
-            )
-        )
-    if result:
-        # Create the Role
-        await _create_role(ctx, name)
+    options = {
+        "✅": ReactionMenuOption(
+            callback_func=generate_yes_callback(ctx, name),
+            on_reaction_add=YES_reaction_event,
+            on_reaction_remove=YES_reaction_event,
+            calculate_reaction_value=calc_value_func,
+            callback_trigger=REQUIRED_VOTES,
+        ),
+        "❌": ReactionMenuOption(
+            callback_func=lambda: print("No Won"),
+            on_reaction_add=NO_reaction_event,
+            on_reaction_remove=NO_reaction_event,
+            calculate_reaction_value=calc_value_func,
+            callback_trigger=REQUIRED_VOTES,
+        ),
+    }
+    menu = await ReactionMenu.create(ctx, msg, "", options)
+    await menu.wait_for_results()
 
 
 async def _create_role(ctx, name: str):
