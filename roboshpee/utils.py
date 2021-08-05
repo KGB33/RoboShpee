@@ -1,10 +1,10 @@
 import asyncio
 import datetime
 import functools
+import inspect
 from typing import Callable, Optional
 
 import discord
-from _pytest.compat import is_async_function
 from discord.raw_models import RawReactionActionEvent
 
 
@@ -69,7 +69,7 @@ class ReactionMenu:
         await self.msg.clear_reactions()
         for option in self.options.values():
             if option.activated:
-                if is_async_function(option.callback_func):
+                if inspect.iscoroutinefunction(option.callback_func):
                     await option.callback_func()
                 else:
                     option.callback_func()
@@ -110,7 +110,7 @@ class ReactionMenuOption:
     async def _reaction_add(self, r: discord.RawReactionActionEvent) -> bool:
         self.state += self._calculate_reaction_value(r)
 
-        if is_async_function(self.on_reaction_add):
+        if inspect.iscoroutinefunction(self.on_reaction_add):
             await self.on_reaction_add(self)
         else:
             self.on_reaction_add(self)
@@ -120,7 +120,7 @@ class ReactionMenuOption:
     async def _reaction_remove(self, r: discord.RawReactionActionEvent) -> bool:
         self.state -= self._calculate_reaction_value(r)
 
-        if is_async_function(self.on_reaction_remove):
+        if inspect.iscoroutinefunction(self.on_reaction_remove):
             await self.on_reaction_remove(self)
         else:
             self.on_reaction_remove(self)
