@@ -87,12 +87,14 @@ class ReactionMenuOption:
         callback_func: Callable,
         on_reaction_add: Callable = lambda *args, **kwargs: None,
         on_reaction_remove: Callable = lambda *args, **kwargs: None,
+        calculate_reaction_value: Callable = lambda *args, **kwargs: 1,
         callback_trigger: int = 1,
     ):
         self.callback_func = callback_func
         self.on_reaction_add = on_reaction_add
         self.on_reaction_remove = on_reaction_remove
         self._callback_trigger = callback_trigger
+        self._calculate_reaction_value_func = calculate_reaction_value
         self.state = 0
 
     @property
@@ -105,7 +107,7 @@ class ReactionMenuOption:
         return await self._reaction_remove(r)
 
     async def _reaction_add(self, r: discord.RawReactionActionEvent) -> bool:
-        self.state += self._calculate_reaction_value(r)
+        self.state += await self._calculate_reaction_value(r)
 
         if inspect.iscoroutinefunction(self.on_reaction_add):
             await self.on_reaction_add(self)
@@ -115,7 +117,7 @@ class ReactionMenuOption:
         return self.activated
 
     async def _reaction_remove(self, r: discord.RawReactionActionEvent) -> bool:
-        self.state -= self._calculate_reaction_value(r)
+        self.state -= await self._calculate_reaction_value(r)
 
         if inspect.iscoroutinefunction(self.on_reaction_remove):
             await self.on_reaction_remove(self)
@@ -124,6 +126,8 @@ class ReactionMenuOption:
 
         return self.activated
 
-    @staticmethod
-    def _calculate_reaction_value(r):
-        return 1
+    async def _calculate_reaction_value(self, r) -> int:
+        if inspect.iscoroutinefunction(self._calculate_reaction_value_func):
+            return await self._calculate_reaction_value_func(r)
+        else:
+            return self._calculate_reaction_value_func(r)
