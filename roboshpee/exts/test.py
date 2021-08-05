@@ -6,8 +6,8 @@ from discord.ext import commands
 
 from roboshpee.bot import Bot
 from roboshpee.constants import MASTER_SHPEE
+from roboshpee.menu import ReactionMenu, ReactionMenuOption
 from roboshpee.security import requires_exact_role
-from roboshpee.utils import ReactionMenu, ReactionMenuOption
 
 
 @commands.group()
