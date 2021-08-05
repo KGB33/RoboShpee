@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from roboshpee.bot import Bot
 from roboshpee.constants import PREFIX
-from roboshpee.utils import ReactionMenu, ReactionMenuOption
+from roboshpee.menu import ReactionMenu, ReactionMenuOption
 
 
 @commands.group()
