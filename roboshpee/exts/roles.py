@@ -11,11 +11,12 @@ from roboshpee.constants import (
     ELDER_SHPEE,
     MASTER_SHPEE,
     OWNER,
+    PREFIX,
     SENOR_SHPEE,
     TOGGLEABLE_GAME_ROLE_COLOR,
 )
 from roboshpee.menu import ReactionMenu, ReactionMenuOption
-from roboshpee.security import minimum_role_permission
+from roboshpee.security import minimum_role_permission, requires_exact_role
 from roboshpee.utils import msg_owner, ttl_cache
 
 
@@ -136,6 +137,26 @@ async def _create_role(ctx, name: str):
         color=TOGGLEABLE_GAME_ROLE_COLOR,
     )
     await msg_owner(ctx, f"A new role was created `{name}`")
+
+
+@role.command()
+@requires_exact_role(OWNER)
+async def delete(ctx, role_name: str):
+    """
+    Deletes a role, can only be preformed by the owner.
+    """
+    toggleable_roles = _fetch_toggleable_roles(ctx.guild)
+    role = toggleable_roles.get(role_name.lower(), None)
+    if role is None:
+        return await _handle_invalid_roles(
+            ctx,
+            {
+                role_name,
+            },
+        )
+    return await role.delete(
+        reason=f"Removed by {ctx.author.name} via `{PREFIX}role delete {role_name}`"
+    )
 
 
 @role.command()
