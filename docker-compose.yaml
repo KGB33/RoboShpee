@@ -1,6 +1,6 @@
 services:
   bot:
-    build: ./
+    image: ghcr.io/kgb33/roboshpee:latest
     environment:
       DISCORD_TOKEN: ${DISCORD_TOKEN}
     restart: always
