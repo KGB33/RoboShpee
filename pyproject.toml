@@ -5,7 +5,7 @@ description = ""
 authors = ["KGB33 <github@bassingthwaite.org>"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 "discord.py" = {extras = ["voice"], version = "^1.4.1"}
 pre-commit = "^2.8.2"
 prettytable = "^2.0.0"
