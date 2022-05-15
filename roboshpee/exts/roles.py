@@ -209,7 +209,8 @@ async def add(ctx, *roles):
         else:  # Gives Role
             msg += f"\tAdded:   `{r.name}`\n"
             await author.add_roles(r)
-    return await ctx.message.channel.send(msg)
+    if msg:
+        return await ctx.message.channel.send(msg)
 
 
 @role.command()
