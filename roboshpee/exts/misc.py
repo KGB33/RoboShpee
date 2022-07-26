@@ -1,7 +1,9 @@
 import random
+from time import sleep
 from typing import Optional
 
 import discord
+from discord.client import asyncio
 from discord.ext import commands
 
 from roboshpee.bot import Bot
@@ -47,7 +49,27 @@ async def quote(ctx):
     await ctx.send(quote.content)
 
 
+@commands.command()
+async def timer(
+    ctx, delta: int, timer_name: Optional[str], *users: Optional[discord.User]
+):
+    """
+    Pings the caller and the optional users after a give time.
+    Timers are lost if the bot crashes or restarts.
+
+    Param 'delta' is the time in mins.
+    """
+    await ctx.send(f"Timer {timer_name} set for {delta} mins.")
+    if not users:
+        users = ()
+    mentions = " ".join(u.mention for u in users)
+    mentions = f"{ctx.author.mention} {mentions}"
+    await asyncio.sleep(delta * 60)
+    await ctx.send(f"Timer {timer_name} Done! {mentions}")
+
+
 def setup(bot: Bot) -> None:
     bot.add_command(cs)
     bot.add_command(taco_time)
     bot.add_command(quote)
+    bot.add_command(timer)
