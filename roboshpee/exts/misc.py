@@ -32,7 +32,7 @@ async def taco_time(ctx, delta: Optional[int]):
     dir_ = BASE_DIR / "static" / "taco_time.png"
     if delta is not None:
         await ctx.send(
-            f"The estimated taco time is about {random.randint(2, 5) * delta}mins"
+            f"The estimated taco time is about {random.gammavariate(2, 2) * delta:.2g}mins"
         )
     await ctx.send(file=discord.File(dir_))
 
