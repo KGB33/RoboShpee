@@ -18,4 +18,4 @@ class AntiTacoCog(commands.Cog):
 
 
 async def setup(bot):
-    bot.add_cog(AntiTacoCog(bot))
+    await bot.add_cog(AntiTacoCog(bot))
