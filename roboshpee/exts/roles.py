@@ -296,5 +296,5 @@ def _validate_role_input(
     return valid_roles, invalid_roles
 
 
-def setup(bot: Bot) -> None:
+async def setup(bot: Bot) -> None:
     bot.add_command(role)

@@ -29,5 +29,5 @@ async def menu(ctx):
     await menu.wait_for_results()
 
 
-def setup(bot: Bot) -> None:
+async def setup(bot: Bot) -> None:
     bot.add_command(test)

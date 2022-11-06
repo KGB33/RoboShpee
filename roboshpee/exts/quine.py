@@ -48,6 +48,6 @@ def _generate_valid_files() -> dict[str, Path]:
     return result
 
 
-def setup(bot: Bot) -> None:
+async def setup(bot: Bot) -> None:
     bot.add_command(quine)
     bot.add_command(quineables)

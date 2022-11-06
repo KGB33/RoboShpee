@@ -17,5 +17,5 @@ class AntiTacoCog(commands.Cog):
         await msg_owner(f"Removed a message from {message.author}.\n{message.content=}")
 
 
-def setup(bot):
+async def setup(bot):
     bot.add_cog(AntiTacoCog(bot))

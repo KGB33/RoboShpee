@@ -68,7 +68,7 @@ async def timer(
     await ctx.send(f"Timer {timer_name} Done! {mentions}")
 
 
-def setup(bot: Bot) -> None:
+async def setup(bot: Bot) -> None:
     bot.add_command(cs)
     bot.add_command(taco_time)
     bot.add_command(quote)
