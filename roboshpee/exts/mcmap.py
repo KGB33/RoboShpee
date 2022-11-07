@@ -31,5 +31,5 @@ async def mcmap(
     )
 
 
-def setup(bot: Bot) -> None:
+async def setup(bot: Bot) -> None:
     bot.add_command(mcmap)
