@@ -38,6 +38,14 @@ async def taco_time(ctx, delta: Optional[int]):
 
 
 @commands.command()
+async def rtd(ctx, sides: int = 2):
+    """
+    Roll a 'dice' with some number of sides.
+    """
+    await ctx.send(f"{random.randint(1, sides)}")
+
+
+@commands.command()
 async def quote(ctx):
     """
     Fetches a random quote from the #quotes channel
@@ -73,3 +81,4 @@ async def setup(bot: Bot) -> None:
     bot.add_command(taco_time)
     bot.add_command(quote)
     bot.add_command(timer)
+    bot.add_command(rtd)
