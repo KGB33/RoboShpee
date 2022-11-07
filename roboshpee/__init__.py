@@ -6,5 +6,3 @@ if TYPE_CHECKING:
     from roboshpee.bot import Bot
 
 log.setup()
-
-instance: Optional["Bot"] = None  # Global Bot instance
