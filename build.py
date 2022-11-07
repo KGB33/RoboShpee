@@ -1,7 +1,14 @@
 import asyncio
+import os
 import subprocess
 
 import dagger
+from dagger.api.gen import ContainerID, Platform
+
+PLATFORMS: list[Platform] = [
+    Platform("linux/amd64"),  # a.k.a. x86_64
+    Platform("linux/arm64"),  # a.k.a. aarch64
+]
 
 
 async def build():
@@ -22,26 +29,50 @@ async def build():
             .exec(["poetry", "export"])
             .stdout()  # Returns a file
         ).id()
-        ctr = (
-            client.container()
-            .from_("python:alpine")
-            .exec(["apk", "add", "build-base"])
-            .exec(["python", "-m", "pip", "install", "--upgrade", "pip"])
-            .with_mounted_file("/requirements.txt", parse_reqs.value)
-            .exec(["python", "-m", "pip", "install", "-r", "/requirements.txt"])
-        )
         source_files = await client.host().workdir(include=["roboshpee/"]).id()
-        ctr = (
-            ctr.with_mounted_directory("/host", source_files.value)
-            .exec(["cp", "-r", "/host", "/app"])
-            .with_workdir("/app")
-            .with_entrypoint(["python", "-m", "roboshpee"])
-        )
+        os.makedirs(f"./build/linux", exist_ok=True)
+        async with asyncio.TaskGroup() as tg:
+            for platform in PLATFORMS:
+                tg.create_task(
+                    build_platform(client, platform, parse_reqs, source_files)
+                )
+        subprocess.run(["docker", "load", "-i", "./build/linux/amd64.tar.gz"])
 
-        await ctr.export("./build/rsphee.tar.gz")
 
-        # Loads the image to run locally. Check stdout for the sha to run.
-        subprocess.run(["docker", "load", "-i", "./build/rsphee.tar.gz"])
+async def build_platform(client, platform, requirement_file, src) -> ContainerID:
+    ctr = (
+        client.container(platform=platform)
+        .from_("python:alpine")
+        .exec(["apk", "add", "build-base", "libffi-dev"])
+        .exec(["python", "-m", "pip", "install", "--upgrade", "pip"])
+        .with_mounted_file("/requirements.txt", requirement_file.value)
+        .exec(["python", "-m", "pip", "install", "-r", "/requirements.txt"])
+        .with_mounted_directory("/host", src.value)
+        .exec(["cp", "-r", "/host", "/app"])
+        .with_workdir("/app")
+        .with_entrypoint(["python", "-m", "roboshpee"])
+    )
+    await ctr.export(f"./build/{platform}.tar.gz")
+    return (await ctr.id()).value
+
+    # print(f"{platform_variants=}")
+    # await client.container().publish("localhost:5000/roboshpee", platform_variants=platform_variants)
+
+    # Loads the image to run locally. Check stdout for the sha to run.
+
+
+async def test():
+    """
+    Run pytest tests.
+    """
+    pass
+
+
+async def publish():
+    """
+    Push images to ghcr.
+    """
+    pass
 
 
 if __name__ == "__main__":
