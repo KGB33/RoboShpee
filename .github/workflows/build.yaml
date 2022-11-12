@@ -16,12 +16,14 @@ jobs:
     name: "Build & Push to GHCR"
     runs-on: ubuntu-latest
     steps:
+      - name: Enable multi-platform Builds
+        run: docker run --privileged --rm tonistiigi/binfmt --install all
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - run: |
-          python3 -m pip install dagger-io
-          python3 build.py --publish --verbose
+        run: python3 -m pip install dagger-io
+      - name: Build Images
+        run: python3 build.py --publish --verbose
         env:
           GHCR_PAT: ${{ secrets.GITHUB_TOKEN }}
