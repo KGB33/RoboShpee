@@ -16,7 +16,11 @@ PLATFORMS: list[Platform] = [
 
 
 async def main(args: argparse.Namespace):
-    async with dagger.Connection() as client:
+    cfg = dagger.Config()
+    if args.verbose:
+        cfg.log_output = sys.stdout
+
+    async with dagger.Connection(cfg) as client:
         images = await build(client)
         if args.publish:
             await publish(client.container(), images)
@@ -122,6 +126,9 @@ if __name__ == "__main__":
         "--clean",
         action="store_true",
         help="Removes generated 'build/' directory.",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enables dagger debug output"
     )
 
     args = parser.parse_args()
