@@ -16,15 +16,13 @@ jobs:
     name: "Build & Push to GHCR"
     runs-on: ubuntu-latest
     steps:
-      - name: "Check out"
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
-          fetch-depth: 0
-      - name: "Install dagger sdk"
-        run: |
+          python-version: '3.10'
+          cache: 'pip'
+      - run: |
           python3 -m pip install dagger-io
-      - name: "run pipeline"
-        run: |
           python3 build.py
         env:
           GHCR_PAT: ${{ secrets.GITHUB_TOKEN }}
