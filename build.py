@@ -21,8 +21,6 @@ async def main(args: argparse.Namespace):
         cfg.log_output = sys.stdout
 
     async with dagger.Connection(cfg) as client:
-        if args.gha:
-            client.cache_volume("gha")
         images = await build(client)
         if args.publish:
             await publish(client.container(), images)
