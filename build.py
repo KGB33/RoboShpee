@@ -21,6 +21,8 @@ async def main(args: argparse.Namespace):
         cfg.log_output = sys.stdout
 
     async with dagger.Connection(cfg) as client:
+        if args.gha:
+            client.cache_volume("gha")
         images = await build(client)
         if args.publish:
             await publish(client.container(), images)
@@ -129,6 +131,11 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enables dagger debug output"
+    )
+    parser.add_argument(
+        "--gha",
+        action="store_true",
+        help="Enables Github action specific functionality",
     )
 
     args = parser.parse_args()
