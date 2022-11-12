@@ -7,17 +7,17 @@ authors = ["KGB33 <github@bassingthwaite.org>"]
 [tool.poetry.dependencies]
 python = "^3.11"
 "discord.py" = {extras = ["voice"], version = "^2.0.1"}
-prettytable = "^2.0.0"
+prettytable = "^3.5.0"
 fuzzywuzzy = {extras = ["speedup"], version = "^0.18.0"}
-requests = "^2.25.1"
+requests = "^2.28.1"
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^2.8.2"
-black = "^20.8b1"
-pylint = "^2.6.0"
-pytest = "^6.2.1"
-hypothesis = "^5.43.5"
-isort = "^5.9.2"
+pre-commit = "^2.20.0"
+black = "^22.10.0"
+pylint = "^2.15.5"
+pytest = "^7.2.0"
+hypothesis = "^6.56.4"
+isort = "^5.10.1"
 dagger-io = "^0.1.1"
 
 [build-system]
