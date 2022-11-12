@@ -29,4 +29,4 @@ jobs:
       - name: Build Images
         run: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u KGB33 --password-stdin
-          python3 build.py --publish --verbose
+          python3 build.py --publish --verbose --gha
