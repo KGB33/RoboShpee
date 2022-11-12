@@ -1,6 +1,6 @@
 #  RoboShpee
 
-A Discord bot for Auto-Moderation, amongst other things.
+A Discord bot for Auto-Moderation, and other things.
 
 ## Features
 
