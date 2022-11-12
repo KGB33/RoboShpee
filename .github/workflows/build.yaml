@@ -22,6 +22,6 @@ jobs:
           python-version: '3.11'
       - run: |
           python3 -m pip install dagger-io
-          python3 build.py
+          python3 build.py --publish --verbose
         env:
           GHCR_PAT: ${{ secrets.GITHUB_TOKEN }}
