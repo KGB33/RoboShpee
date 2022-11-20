@@ -65,7 +65,7 @@ async def create(ctx, *args):
 
         >>> url create https://github.com/KGB33/url-shortener
         Created key `FU4yMyyYZnF` that redirects to `https://github.com/KGB33/url-shortener`
-    """
+    """  # noqa: E501 (Line too long)
     if len(args) == 1:
         shortUrl = ""
         destUrl = args[0]

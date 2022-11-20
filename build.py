@@ -52,7 +52,7 @@ async def build(client: dagger.Client) -> list[ContainerID]:
     source_files = await client.host().workdir(include=["roboshpee/"]).id()
 
     # create output directory
-    os.makedirs(f"./build/linux", exist_ok=True)
+    os.makedirs("./build/linux", exist_ok=True)
 
     # Build each platform.
     tasks = []

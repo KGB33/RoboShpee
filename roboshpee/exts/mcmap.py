@@ -1,5 +1,3 @@
-from typing import Literal
-
 from discord.ext import commands
 
 from roboshpee.bot import Bot

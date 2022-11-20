@@ -1,4 +1,3 @@
-import asyncio
 from typing import Final, Iterable, Optional
 
 import discord
@@ -247,7 +246,7 @@ async def _handle_invalid_roles(ctx, roles: Iterable[str]):
             )
         else:
             await ctx.send(
-                f"`{incorrect}` isn't a valid role, and no close matches could be found."
+                f"`{incorrect}` isn't a valid role, no close matches could be found."
             )
 
 

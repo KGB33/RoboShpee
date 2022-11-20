@@ -17,7 +17,7 @@ async def quine(ctx, file_name: str = "quine.py"):
     file_match = process.extractOne(file_name, VALID_FILES.keys(), score_cutoff=75)
     if file_match is None:
         return await ctx.send(
-            f"Could not find the provided file name. Please try again."
+            "Could not find the provided file name. Please try again."
         )
     file_path = VALID_FILES[file_match[0]]
     with open(file_path) as file_:
