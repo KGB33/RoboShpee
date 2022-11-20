@@ -20,6 +20,7 @@ hypothesis = "^6.56.4"
 isort = "^5.10.1"
 dagger-io = "^0.1.1"
 ruff = "^0.0.129"
+poethepoet = "^0.16.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
@@ -37,3 +38,14 @@ multi_line_output = 3
 [tool.ruff]
 select=["E", "F", "I",]
 fix=true
+
+[tool.poe.tasks]
+test = "pytest"
+fmt = [
+	{cmd="black ."}
+]
+lint = [
+	{cmd="ruff ."},
+	"fmt",
+]
+build = "python build.py"
