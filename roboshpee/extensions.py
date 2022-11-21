@@ -3,7 +3,7 @@ import inspect
 import pkgutil
 from typing import Iterator, NoReturn
 
-from roboshpee import exts
+from roboshpee import cogs
 
 
 def unqualify(name: str) -> str:
@@ -18,7 +18,7 @@ def walk_extensions() -> Iterator[str]:
         raise ImportError(name=name)  # pragma: no cover
 
     for module in pkgutil.walk_packages(
-        exts.__path__, f"{exts.__name__}.", onerror=on_error
+        cogs.__path__, f"{cogs.__name__}.", onerror=on_error
     ):
         if unqualify(module.name).startswith("_"):
             # Ignore module/package names starting with an underscore.

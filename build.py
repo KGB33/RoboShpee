@@ -21,11 +21,11 @@ async def main(args: argparse.Namespace):
         cfg.log_output = sys.stdout
 
     async with dagger.Connection(cfg) as client:
+        if not args.skip_tests:
+            await test()
         images = await build(client)
         if args.publish:
             await publish(client.container(), images)
-        if not args.skip_tests:
-            print("Tests WIP, skipping anyways.")
 
 
 async def build(client: dagger.Client) -> list[ContainerID]:
@@ -52,7 +52,7 @@ async def build(client: dagger.Client) -> list[ContainerID]:
     source_files = await client.host().workdir(include=["roboshpee/"]).id()
 
     # create output directory
-    os.makedirs(f"./build/linux", exist_ok=True)
+    os.makedirs("./build/linux", exist_ok=True)
 
     # Build each platform.
     tasks = []
@@ -89,7 +89,7 @@ async def test():
     """
     Run pytest tests.
     """
-    pass
+    subprocess.run(["pytest", "tests"], check=True)
 
 
 async def publish(ctr: Container, images: list[ContainerID]):
