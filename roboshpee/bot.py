@@ -14,11 +14,14 @@ class Bot(commands.Bot):
         super().__init__(*args, **kwargs)
 
     @classmethod
-    def create(cls) -> "Bot":
+    def create(cls, *args, **kwargs) -> "Bot":
         intents = Intents.default()
         intents.message_content = True
         return cls(
-            intents=intents, command_prefix=commands.when_mentioned_or(constants.PREFIX)
+            intents=intents,
+            command_prefix=commands.when_mentioned_or(constants.PREFIX),
+            *args,
+            **kwargs
         )
 
     async def load_extentions(self) -> None:
@@ -33,5 +36,9 @@ class Bot(commands.Bot):
             for extension in extensions:
                 tg.create_task(self.load_extension(extension))
 
-    async def on_ready(self):
+    async def on_connect(self):
+        await self.tree.sync()
+
+    async def clear_commands(self):
+        self.tree.clear_commands(guild=None)
         await self.tree.sync()
