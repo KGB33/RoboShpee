@@ -24,11 +24,14 @@ class Bot(commands.Bot):
     async def load_extentions(self) -> None:
         """
         Used to load commands, Cogs, Groups, etc...
-        from the modules found by roboshpee.extentions
+        from the modules found by roboshpee.extensions
         """
-        from roboshpee.extentions import EXTENSIONS
+        from roboshpee.extensions import EXTENSIONS
 
-        extentions = set(EXTENSIONS)
+        extensions = set(EXTENSIONS)
         async with asyncio.TaskGroup() as tg:
-            for extention in extentions:
-                tg.create_task(self.load_extension(extention))
+            for extension in extensions:
+                tg.create_task(self.load_extension(extension))
+
+    async def on_ready(self):
+        await self.tree.sync()
