@@ -52,3 +52,4 @@ lint = [
 	"fmt",
 ]
 build = "python build.py"
+run = "python -m roboshpee"
