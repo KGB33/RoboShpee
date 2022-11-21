@@ -6,6 +6,7 @@ import discord
 
 BASE_DIR: Final = Path(__file__).parent
 PREFIX: Final = os.getenv("BOT_PREFIX", "!3.")
+BOT_ID: Final = int(os.getenv("BOT_ID", "536718941964468245"))
 
 # Logging Trace Level
 TRACE_LEVEL: Final = 5

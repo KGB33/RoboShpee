@@ -1,9 +1,8 @@
+import asyncio
 import random
-from time import sleep
 from typing import Optional
 
 import discord
-from discord.client import asyncio
 from discord.ext import commands
 
 from roboshpee.bot import Bot
@@ -14,7 +13,7 @@ from roboshpee.constants import BASE_DIR
 async def cs(ctx):
     """
     Displays a Creep Score flow chart.
-        Usefull for when your support sucks.
+        Useful for when your support sucks.
     """
     dir_ = (
         BASE_DIR
@@ -31,9 +30,8 @@ async def taco_time(ctx, delta: Optional[int]):
     """
     dir_ = BASE_DIR / "static" / "taco_time.png"
     if delta is not None:
-        await ctx.send(
-            f"The estimated taco time is about {random.gammavariate(2, 2) * delta:.2g}mins"
-        )
+        scaled_delta = random.gammavariate(2, 2) * delta
+        await ctx.send(f"The estimated taco time is about {scaled_delta:.2g}mins")
     await ctx.send(file=discord.File(dir_))
 
 

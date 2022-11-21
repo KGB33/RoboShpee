@@ -10,6 +10,7 @@ python = "^3.11"
 prettytable = "^3.5.0"
 fuzzywuzzy = {extras = ["speedup"], version = "^0.18.0"}
 requests = "^2.28.1"
+cashews = {extras = ["redis"], version = "^5.0.0"}
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^2.20.0"
@@ -19,6 +20,10 @@ pytest = "^7.2.0"
 hypothesis = "^6.56.4"
 isort = "^5.10.1"
 dagger-io = "^0.1.1"
+ruff = "^0.0.129"
+poethepoet = "^0.16.4"
+pytest-asyncio = "^0.20.2"
+pytest-check = "^1.0.10"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
@@ -32,3 +37,19 @@ testpaths = [
 [tool.isort]
 profile = "black"
 multi_line_output = 3
+
+[tool.ruff]
+select=["E", "F", "I",]
+fix=true
+
+[tool.poe.tasks]
+test = "pytest"
+fmt = [
+	{cmd="black ."}
+]
+lint = [
+	{cmd="ruff ."},
+	"fmt",
+]
+build = "python build.py"
+run = "python -m roboshpee"

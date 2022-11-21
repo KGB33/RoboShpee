@@ -1,5 +1,4 @@
-import asyncio
-from typing import Final, Iterable, Optional
+from typing import Final, Iterable
 
 import discord
 from discord.ext import commands
@@ -20,14 +19,18 @@ from roboshpee.security import minimum_role_permission, requires_exact_role
 from roboshpee.utils import msg_owner, ttl_cache
 
 
-@commands.group()
+@commands.hybrid_group()
 async def role(ctx):
+    if ctx.invoked_subcommand is not None:
+        return
+    await list_(ctx)
+
+
+@role.command(name="list")
+async def list_(ctx):
     """
     Displays all toggleable roles.
     """
-    if ctx.invoked_subcommand is not None:
-        return
-
     toggleable_roles = {
         r: (r in ctx.author.roles) for r in _fetch_toggleable_roles(ctx.guild).values()
     }
@@ -154,13 +157,19 @@ async def delete(ctx, role_name: str):
                 role_name,
             },
         )
-    return await role.delete(
+    await role.delete(
         reason=f"Removed by {ctx.author.name} via `{PREFIX}role delete {role_name}`"
     )
+    return await ctx.send(f"Deleted {role_name}.")
 
 
 @role.command()
-async def toggle(ctx, *roles):
+async def toggle(ctx, role: str):
+    await toggle_multiple(ctx, role)
+
+
+@role.command(with_app_command=False)
+async def toggle_multiple(ctx, *roles):
     """
     Toggle the provided roles on or off.
 
@@ -179,17 +188,23 @@ async def toggle(ctx, *roles):
     author = ctx.message.author
     msg = ""
     for r in validated_roles:
-        if r in author.roles:  # Removes Role
+        if r in author.roles:
             msg += f"\tRemoved: `{r.name}`\n"
             await author.remove_roles(r)
-        else:  # Gives Role
+        else:
             msg += f"\tAdded:   `{r.name}`\n"
             await author.add_roles(r)
-    return await ctx.message.channel.send(msg)
+    if msg:
+        return await ctx.send(msg)
 
 
 @role.command()
-async def add(ctx, *roles):
+async def add(ctx, role: str):
+    return await add_multiple(ctx, role)
+
+
+@role.command(with_app_command=False)
+async def add_multiple(ctx, *roles):
     """
     Add yourself to the supplied roles.
 
@@ -214,7 +229,15 @@ async def add(ctx, *roles):
 
 
 @role.command()
-async def remove(ctx, *roles):
+async def remove(ctx, role: str):
+    """
+    Remove yourself from a given role.
+    """
+    await remove_multiple(ctx, role)
+
+
+@role.command(with_app_command=False)
+async def remove_multiple(ctx, *roles):
     """
     Remove yourself from the supplied roles.
 
@@ -234,21 +257,36 @@ async def remove(ctx, *roles):
             await author.remove_roles(r)
         else:
             msg += f"\tYou don't have the following role:  `{r.name}`\n"
-    return await ctx.message.channel.send(msg)
+    if msg:
+        return await ctx.send(msg)
 
 
 async def _handle_invalid_roles(ctx, roles: Iterable[str]):
-    for incorrect, suggested in _suggest_corrections(
-        roles, (_fetch_toggleable_roles(ctx.guild).keys())
-    ).items():
-        if suggested is not None:
+    for role in roles:
+        suggested = _suggest_corrections(
+            role, (_fetch_toggleable_roles(ctx.guild).keys()), limit=3
+        )
+        if suggested:
             await ctx.send(
-                f"`{incorrect}` isn't a valid role, perhaps you meant `{suggested}`"
+                f"`{role}` isn't a valid role, perhaps you meant one of `{suggested}`"
             )
         else:
             await ctx.send(
-                f"`{incorrect}` isn't a valid role, and no close matches could be found."
+                f"`{role}` isn't a valid role, no close matches could be found."
             )
+
+
+@add.autocomplete("role")
+@toggle.autocomplete("role")
+@remove.autocomplete("role")
+async def role_autocompleation(
+    interaction: discord.Interaction, current: str
+) -> list[discord.app_commands.Choice[str]]:
+    roles = _fetch_toggleable_roles(interaction.guild).keys()
+    if current == "":
+        return [discord.app_commands.Choice(name=r, value=r) for r in roles][:25]
+    corrections = _suggest_corrections(current, roles, limit=20)
+    return [discord.app_commands.Choice(name=r, value=r) for r in corrections]
 
 
 @ttl_cache()
@@ -260,23 +298,15 @@ def _fetch_toggleable_roles(guild: discord.Guild) -> dict[str, discord.Role]:
     }
 
 
-def _suggest_corrections(
-    incorrect_spellings: Iterable[str], roles: Iterable[str]
-) -> dict[str, Optional[str]]:
+def _suggest_corrections(word: str, roles: Iterable[str], limit=1) -> list[str]:
     """
     For each incorrect spelling,
         fuzzy find the closest match (above the cut-off)
     Then, return the {incorrect: suggested} pairs
     """
-    output = dict()
-    for word in incorrect_spellings:
-        if (
-            fuzzy_match := process.extractOne(word, roles, score_cutoff=50)
-        ) is not None:
-            output[word] = fuzzy_match[0]
-        else:
-            output[word] = None
-    return output
+    if results := process.extract(word, roles, limit=limit):
+        return [r[0] for r in results if r[1] > 66]
+    return []
 
 
 def _validate_role_input(
