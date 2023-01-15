@@ -9,7 +9,7 @@ from roboshpee.bot import Bot
 from roboshpee.constants import BASE_DIR
 
 
-@commands.command()
+@commands.hybrid_command()
 async def cs(ctx):
     """
     Displays a Creep Score flow chart.
@@ -23,7 +23,7 @@ async def cs(ctx):
     return await ctx.send(file=discord.File(dir_))
 
 
-@commands.command()
+@commands.hybrid_command()
 async def taco_time(ctx, delta: Optional[int]):
     """
     Takes a duration (in mins) and translates it to taco_time
@@ -35,7 +35,7 @@ async def taco_time(ctx, delta: Optional[int]):
     await ctx.send(file=discord.File(dir_))
 
 
-@commands.command()
+@commands.hybrid_command()
 async def rtd(ctx, sides: int = 2):
     """
     Roll a 'dice' with some number of sides.
@@ -43,7 +43,7 @@ async def rtd(ctx, sides: int = 2):
     await ctx.send(f"{random.randint(1, sides)}")
 
 
-@commands.command()
+@commands.hybrid_command()
 async def quote(ctx):
     """
     Fetches a random quote from the #quotes channel
@@ -55,9 +55,9 @@ async def quote(ctx):
     await ctx.send(quote.content)
 
 
-@commands.command()
+@commands.hybrid_command()
 async def timer(
-    ctx, delta: int, timer_name: Optional[str], *users: Optional[discord.User]
+    ctx, delta: int, timer_name: Optional[str], user: Optional[discord.User]
 ):
     """
     Pings the caller and the optional users after a give time.
@@ -66,9 +66,11 @@ async def timer(
     Param 'delta' is the time in mins.
     """
     await ctx.send(f"Timer {timer_name} set for {delta} mins.")
-    if not users:
-        users = ()
-    mentions = " ".join(u.mention for u in users)
+    if not user:
+        user = ()
+    else:
+        user = (user,)
+    mentions = " ".join(u.mention for u in user)
     mentions = f"{ctx.author.mention} {mentions}"
     await asyncio.sleep(delta * 60)
     await ctx.send(f"Timer {timer_name} Done! {mentions}")
