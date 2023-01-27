@@ -13,17 +13,17 @@ requests = "^2.28.1"
 cashews = {extras = ["redis"], version = "^5.0.0"}
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^2.20.0"
+pre-commit = "^3.0.1"
 black = "^22.10.0"
 pylint = "^2.15.5"
 pytest = "^7.2.0"
-hypothesis = "^6.56.4"
+hypothesis = "^6.65.1"
 isort = "^5.10.1"
-dagger-io = "^0.1.1"
-ruff = "^0.0.129"
-poethepoet = "^0.16.4"
+dagger-io = "^0.3.1"
+poethepoet = "^0.18.1"
 pytest-asyncio = "^0.20.2"
-pytest-check = "^1.0.10"
+pytest-check = "^2.1.2"
+ruff = "^0.0.235"
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
