@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 import dagger
-from dagger.api.gen import Container, ContainerID, Platform
+from dagger.api.gen import Container, Platform
 
 # Wrapping strings in a platform makes type hints happy.
 PLATFORMS: list[Platform] = [
@@ -26,30 +26,30 @@ async def main(args: argparse.Namespace):
         images = await build(client)
         if args.publish:
             await publish(client.container(), images)
+    if args.load:
+        load_local()
 
 
-async def build(client: dagger.Client) -> list[ContainerID]:
+async def build(client: dagger.Client) -> list[Container]:
     """
     Build a `python:alpine` image packaging roboshpee.
     """
     # Grab Lock Files
-    requirment_files = (
-        await client.host().workdir(include=["pyproject.toml", "poetry.lock"]).id()
-    )
+    requirment_files = client.host().workdir(include=["pyproject.toml", "poetry.lock"])
 
     # Export Poetry lockfile into pip install -r able-format
-    parse_reqs = await (
+    parse_reqs = (
         client.container()
         .from_("alpine:edge")
         .exec(["apk", "add", "poetry"])
         .with_mounted_directory("/host", requirment_files)
         .with_workdir("/host")
-        .exec(["poetry", "export"])
-        .stdout()  # Returns a file
-    ).id()
+        .with_exec(["poetry", "export"], redirect_stdout="requirements.txt")
+        .file("requirements.txt")
+    )
 
     # Grab Application Source Files
-    source_files = await client.host().workdir(include=["roboshpee/"]).id()
+    source_files = client.host().workdir(include=["roboshpee/"])
 
     # create output directory
     os.makedirs("./build/linux", exist_ok=True)
@@ -66,7 +66,7 @@ async def build(client: dagger.Client) -> list[ContainerID]:
     return [t.result() for t in tasks]
 
 
-async def build_platform(client, platform, requirement_file, src) -> ContainerID:
+async def build_platform(client, platform, requirement_file, src) -> Container:
     print(f"Building {platform}...")
     ctr = (
         client.container(platform=platform)
@@ -82,7 +82,7 @@ async def build_platform(client, platform, requirement_file, src) -> ContainerID
     )
     await ctr.export(f"./build/{platform}.tar.gz")
     print(f"{platform} done...")
-    return await ctr.id()
+    return ctr
 
 
 async def test():
@@ -92,17 +92,17 @@ async def test():
     subprocess.run(["pytest", "tests"], check=True)
 
 
-async def publish(ctr: Container, images: list[ContainerID]):
+async def publish(ctr: Container, images: list[Container]):
     """
     Push images to ghcr.
     """
     print("Publishing images to ghcr...")
-    await ctr.publish(
-        address="ghcr.io/kgb33/roboshpee:latest", platform_variants=images
+    await images[0].publish(
+        address="ghcr.io/kgb33/roboshpee:test", platform_variants=images
     )
 
 
-async def load_local():
+def load_local():
     # Load amd64 image into local docker cache
     subprocess.run(["docker", "load", "-i", "./build/linux/amd64.tar.gz"])
 
@@ -134,6 +134,12 @@ if __name__ == "__main__":
         "--gha",
         action="store_true",
         help="Enables Github action specific functionality",
+    )
+    parser.add_argument(
+        "-l",
+        "--load",
+        action="store_true",
+        help="Load the built image to your local docker engine",
     )
 
     args = parser.parse_args()
