@@ -25,7 +25,7 @@ async def main(args: argparse.Namespace):
             await test()
         images = await build(client)
         if args.publish:
-            await publish(client.container(), images)
+            await publish(images)
     if args.load:
         load_local()
 
