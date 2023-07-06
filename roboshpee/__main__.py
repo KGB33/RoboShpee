@@ -25,7 +25,9 @@ async def main():
             log.error(f"Fatal Exception {e}, exiting now...", exc_info=True)
         finally:
             log.info("Clearing Command Tree...")
-            await instance.clear_commands()
+            # Pod termination delay causes new pod's commands to be removed.
+            if os.getenv("KUBERNETES_SERVICE_HOST") is None:
+                await instance.clear_commands()
             await instance.close()
 
     elif TOKEN is None:
