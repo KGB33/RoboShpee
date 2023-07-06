@@ -1,4 +1,4 @@
-from typing import Final, Iterable
+from typing import Final, Iterable, Literal
 
 import discord
 from discord.ext import commands
@@ -27,27 +27,29 @@ async def role(ctx):
 
 
 @role.command(name="list")
-async def list_(ctx):
+async def list_(ctx, orderby: Literal["count", "name", "member"] = "name"):
     """
     Displays all toggleable roles.
     """
-    toggleable_roles = {
-        r: (r in ctx.author.roles) for r in _fetch_toggleable_roles(ctx.guild).values()
-    }
+    toggleable_roles = [
+        {"count": len(r.members), "name": r.name, "member": (r in ctx.author.roles)}
+        for r in _fetch_toggleable_roles(ctx.guild).values()
+    ]
 
     # Format Roles to table
     table = PrettyTable()
-    table.align = "c"
-    table.field_names = ["Toggleable Roles", "Status"]
+    # table.align = "c"
+    table.field_names = ["Members", "Role", "Status"]
 
-    for role in sorted(toggleable_roles.keys(), key=lambda r: r.name):
-        # This uses a white_check_mark to denote if the user has the role
-        # It might look weird on devices without that codepoint
-        # If you're unsure if its working check the bot's response on
-        # your phone
-        table.add_row([role.name, "✅" if toggleable_roles[role] else "  "])
+    for role in sorted(
+        toggleable_roles, key=lambda r: r[orderby], reverse=(orderby != "name")
+    ):
+        table.add_row([role["count"], role["name"], "✅" if role["member"] else "  "])
 
-    return await ctx.send(f"```\n{ctx.author.name}\n" + table.get_string() + "\n```")
+    output = table.get_string()
+    if len(output) > 1992:
+        output = output[:1992]
+    return await ctx.send(f"```\n{output}\n```")
 
 
 @role.command()
@@ -279,6 +281,7 @@ async def _handle_invalid_roles(ctx, roles: Iterable[str]):
 @add.autocomplete("role")
 @toggle.autocomplete("role")
 @remove.autocomplete("role")
+@delete.autocomplete("role_name")
 async def role_autocompleation(
     interaction: discord.Interaction, current: str
 ) -> list[discord.app_commands.Choice[str]]:

@@ -17,6 +17,7 @@ class Bot(commands.Bot):
     def create(cls, *args, **kwargs) -> "Bot":
         intents = Intents.default()
         intents.message_content = True
+        intents.members = True
         return cls(
             intents=intents,
             command_prefix=commands.when_mentioned_or(constants.PREFIX),
