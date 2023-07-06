@@ -35,13 +35,15 @@ async def build(client: dagger.Client) -> list[Container]:
     Build a `python:alpine` image packaging roboshpee.
     """
     # Grab Lock Files
-    requirment_files = client.host().workdir(include=["pyproject.toml", "poetry.lock"])
+    requirment_files = client.host().directory(
+        path=".", include=["pyproject.toml", "poetry.lock"]
+    )
 
     # Export Poetry lockfile into pip install -r able-format
     parse_reqs = (
         client.container()
         .from_("alpine:edge")
-        .exec(["apk", "add", "poetry"])
+        .with_exec(["apk", "add", "poetry"])
         .with_mounted_directory("/host", requirment_files)
         .with_workdir("/host")
         .with_exec(["poetry", "export"], redirect_stdout="requirements.txt")
@@ -49,7 +51,7 @@ async def build(client: dagger.Client) -> list[Container]:
     )
 
     # Grab Application Source Files
-    source_files = client.host().workdir(include=["roboshpee/"])
+    source_files = client.host().directory(".", include=["roboshpee/"])
 
     # create output directory
     os.makedirs("./build/linux", exist_ok=True)
@@ -71,12 +73,12 @@ async def build_platform(client, platform, requirement_file, src) -> Container:
     ctr = (
         client.container(platform=platform)
         .from_("python:alpine")
-        .exec(["apk", "add", "build-base", "libffi-dev"])
-        .exec(["python", "-m", "pip", "install", "--upgrade", "pip"])
+        .with_exec(["apk", "add", "build-base", "libffi-dev"])
+        .with_exec(["python", "-m", "pip", "install", "--upgrade", "pip"])
         .with_mounted_file("/requirements.txt", requirement_file)
-        .exec(["python", "-m", "pip", "install", "-r", "/requirements.txt"])
+        .with_exec(["python", "-m", "pip", "install", "-r", "/requirements.txt"])
         .with_mounted_directory("/host", src)
-        .exec(["cp", "-r", "/host", "/app"])
+        .with_exec(["cp", "-r", "/host", "/app"])
         .with_workdir("/app")
         .with_entrypoint(["python", "-m", "roboshpee"])
     )
@@ -92,13 +94,13 @@ async def test():
     subprocess.run(["pytest", "tests"], check=True)
 
 
-async def publish(ctr: Container, images: list[Container]):
+async def publish(images: list[Container]):
     """
     Push images to ghcr.
     """
     print("Publishing images to ghcr...")
     await images[0].publish(
-        address="ghcr.io/kgb33/roboshpee:test", platform_variants=images
+        address="ghcr.io/kgb33/roboshpee:latest", platform_variants=images
     )
 
 
