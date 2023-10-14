@@ -27,7 +27,7 @@ async def main(args: argparse.Namespace):
         if args.load:
             await load(images)
         if args.publish:
-            await publish(list(images.values()))
+            await publish(client, list(images.values()))
     if args.load:
         load_local()
 
@@ -55,10 +55,11 @@ def build(client: dagger.Client) -> dict[str, Container]:
     # Grab Application Source Files
     source_files = client.host().directory(".", include=["roboshpee/"])
 
-
     # Build each platform.
-    return {platform: build_platform(client, platform, parse_reqs, source_files) for platform in PLATFORMS}
-
+    return {
+        platform: build_platform(client, platform, parse_reqs, source_files)
+        for platform in PLATFORMS
+    }
 
 
 def build_platform(client, platform, requirement_file, src) -> Container:
@@ -77,6 +78,7 @@ def build_platform(client, platform, requirement_file, src) -> Container:
     )
     return ctr
 
+
 async def load(ctrs: dict[str, Container]):
     # create output directory
     os.makedirs("./build/linux", exist_ok=True)
@@ -86,7 +88,6 @@ async def load(ctrs: dict[str, Container]):
             tg.create_task(ctr.export(f"./build/{platform}.tar.gz"))
 
 
-
 async def test():
     """
     Run pytest tests.
@@ -94,12 +95,12 @@ async def test():
     subprocess.run(["pytest", "tests"], check=True)
 
 
-async def publish(images: list[Container]):
+async def publish(client, images: list[Container]):
     """
     Push images to ghcr.
     """
     print("Publishing images to ghcr...")
-    await images[0].publish(
+    await client.container().publish(
         address="ghcr.io/kgb33/roboshpee:latest", platform_variants=images
     )
 
