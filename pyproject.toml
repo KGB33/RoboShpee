@@ -21,6 +21,7 @@ pytest = "^7.4.0"
 hypothesis = "^6.80.1"
 isort = "^5.12.0"
 dagger-io = "^0.6.3"
+# dagger-io = { path = "../../Code/dagger/sdk/python/", develop = true }
 poethepoet = "^0.20.0"
 pytest-asyncio = "^0.21.0"
 pytest-check = "^2.1.5"

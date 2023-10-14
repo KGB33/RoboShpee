@@ -6,7 +6,7 @@ import subprocess
 import sys
 
 import dagger
-from dagger.api.gen import Container, Platform
+from dagger import Container, Platform
 
 # Wrapping strings in a platform makes type hints happy.
 PLATFORMS: list[Platform] = [
@@ -23,14 +23,16 @@ async def main(args: argparse.Namespace):
     async with dagger.Connection(cfg) as client:
         if not args.skip_tests:
             await test()
-        images = await build(client)
+        images = build(client)
+        if args.load:
+            await load(images)
         if args.publish:
-            await publish(images)
+            await publish(list(images.values()))
     if args.load:
         load_local()
 
 
-async def build(client: dagger.Client) -> list[Container]:
+def build(client: dagger.Client) -> dict[str, Container]:
     """
     Build a `python:alpine` image packaging roboshpee.
     """
@@ -53,26 +55,17 @@ async def build(client: dagger.Client) -> list[Container]:
     # Grab Application Source Files
     source_files = client.host().directory(".", include=["roboshpee/"])
 
-    # create output directory
-    os.makedirs("./build/linux", exist_ok=True)
 
     # Build each platform.
-    tasks = []
-    async with asyncio.TaskGroup() as tg:
-        for platform in PLATFORMS:
-            tasks.append(
-                tg.create_task(
-                    build_platform(client, platform, parse_reqs, source_files)
-                )
-            )
-    return [t.result() for t in tasks]
+    return {platform: build_platform(client, platform, parse_reqs, source_files) for platform in PLATFORMS}
 
 
-async def build_platform(client, platform, requirement_file, src) -> Container:
+
+def build_platform(client, platform, requirement_file, src) -> Container:
     print(f"Building {platform}...")
     ctr = (
         client.container(platform=platform)
-        .from_("python:alpine")
+        .from_("python:3.11-alpine")
         .with_exec(["apk", "add", "build-base", "libffi-dev"])
         .with_exec(["python", "-m", "pip", "install", "--upgrade", "pip"])
         .with_mounted_file("/requirements.txt", requirement_file)
@@ -82,9 +75,16 @@ async def build_platform(client, platform, requirement_file, src) -> Container:
         .with_workdir("/app")
         .with_entrypoint(["python", "-m", "roboshpee"])
     )
-    await ctr.export(f"./build/{platform}.tar.gz")
-    print(f"{platform} done...")
     return ctr
+
+async def load(ctrs: dict[str, Container]):
+    # create output directory
+    os.makedirs("./build/linux", exist_ok=True)
+
+    async with asyncio.TaskGroup() as tg:
+        for platform, ctr in ctrs.items():
+            tg.create_task(ctr.export(f"./build/{platform}.tar.gz"))
+
 
 
 async def test():
