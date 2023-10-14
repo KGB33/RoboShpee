@@ -23,7 +23,7 @@ async def cs(ctx):
     return await ctx.send(file=discord.File(dir_))
 
 
-@commands.command()
+@commands.hybrid_command()
 async def taco_time(ctx, delta: Optional[int]):
     """
     Takes a duration (in mins) and translates it to taco_time
