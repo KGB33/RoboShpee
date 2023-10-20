@@ -28,7 +28,7 @@ async def taco_time(ctx, delta: Optional[int]):
     """
     Takes a duration (in mins) and translates it to taco_time
     """
-    dir_ = BASE_DIR / "static" / "taco_time.png"
+    dir_ = BASE_DIR / "static" / random.choice(("taco_time.png", "wow_tacos.png"))
     if delta is not None:
         scaled_delta = random.gammavariate(2, 2) * delta
         await ctx.send(f"The estimated taco time is about {scaled_delta:.2g}mins")
