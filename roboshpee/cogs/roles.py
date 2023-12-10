@@ -227,7 +227,7 @@ async def add_multiple(ctx, *roles):
             msg += f"\tAdded:   `{r.name}`\n"
             await author.add_roles(r)
     if msg:
-        return await ctx.message.channel.send(msg)
+        return await ctx.send(msg)
 
 
 @role.command()
