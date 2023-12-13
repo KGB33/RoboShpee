@@ -276,6 +276,7 @@ async def _handle_invalid_roles(ctx, roles: Iterable[str]):
             await ctx.send(
                 f"`{role}` isn't a valid role, no close matches could be found."
             )
+        await ctx.send("The `slash` commands also provide autocomplete!")
 
 
 @add.autocomplete("role")
