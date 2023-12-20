@@ -1,7 +1,5 @@
 #  RoboShpee
 
-A Discord bot for Auto-Moderation, and other things.
-
 ## Features
 
   - Allows members to add themselves to certain roles,
@@ -12,6 +10,7 @@ A Discord bot for Auto-Moderation, and other things.
   - Url Shortener Integration via the `url` command.
         For more info see [here](https://github.com/KGB33/url-shortener).
   - Embedded Memes. (`cs` and `taco_time` commands)
+  - Get the status of the Minecraft server.
 
 
 ## Run Locally
@@ -26,19 +25,6 @@ Then, clone the project:
   cd RoboShpee
 ```
 
-### Using Docker-Compose
-
-Add your discord token to a `.env` file.
-
-```bash
-echo DISCORD_TOKEN=YOUR_TOKEN_HERE >> .env
-```
-
-Then, run via `docker-compose up`.
-
-
-### Manually
-
 Create and activate a new virtual environment, install the dependencies,
 and start the bot.
 
@@ -49,12 +35,3 @@ pip install pyproject.toml
 
 DISCORD_TOKEN=YOUR_TOKEN_HERE python -m roboshpee
 ```
-
-### Using The Dagger Python SDK
-First, Enable multiplatform builds
-  - `docker run --privileged --rm tonistiigi/binfmt --install all`
-
-Install & activate the dev environment then run `python build.py -h`
-
-> Note: The [URL Shortener](https://github.com/KGB33/url-shortener) must also
-> be running on the machine for the `url` commands to work
