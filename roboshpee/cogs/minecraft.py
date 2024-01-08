@@ -9,15 +9,27 @@ from roboshpee.bot import Bot
 
 @commands.hybrid_command()
 async def minecraft(ctx):
-    status = (await _fetch_status())["docker"]["ps"]
-    for server in status:
-        await ctx.send(
-            dedent(
-                f"""
+    resp = await _fetch_status()
+    match resp:
+        # {'docker': {'ps': status}, 'disk': {'usage': [{'usePercent': 61}]}}
+        case {
+            "docker": {"ps": status},
+            "disk": {"usage": [{"usePercent": use_percent}]},
+        }:
+            pass
+        case _:
+            await ctx.send("Could not process response")
+            print(resp)
+            return
+    out = "\n".join(
+        dedent(
+            f"""
                 The server (`{server['names']}`) is `{server['state']}` and has been `{server['status']}`.
                 """
-            )
         )
+        for server in status
+    )
+    await ctx.send(f"{out}`{use_percent}%` disk space has been used.")
 
 
 async def _fetch_status():
@@ -35,6 +47,11 @@ async def _fetch_status():
                   names
                   state
                   status
+                }
+              }
+              disk {
+                usage(path: "/") {
+                  usePercent
                 }
               }
             }
