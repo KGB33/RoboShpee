@@ -42,13 +42,6 @@ class Bot(commands.Bot):
     async def on_connect(self):
         await self.tree.sync()
 
-    async def on_message(self, msg: Message, /) -> None:
-        if (msg.author == self.application_id) or (msg.author.bot):
-            return
-        if match := re.findall(r"https?://(?:twitter|x)\.com/[^.\s]+", msg.content):
-            await events.on_twitter_msg(msg, match)
-        return await super().on_message(msg)
-
     async def clear_commands(self):
         self.tree.clear_commands(guild=None)
         await self.tree.sync()
