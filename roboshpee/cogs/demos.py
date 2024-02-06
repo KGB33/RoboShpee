@@ -68,9 +68,13 @@ async def embeded_menu(ctx):
 
         return wrapped
 
-    fish_callback = generate_callback_func(embed, 0, msg, fish_name, "✨✨ Fred Won! ✨✨")
+    fish_callback = generate_callback_func(
+        embed, 0, msg, fish_name, "✨✨ Fred Won! ✨✨"
+    )
     dog_callback = generate_callback_func(embed, 1, msg, dog_name, "✨✨ Dan Won! ✨✨")
-    pig_callback = generate_callback_func(embed, 2, msg, pig_name, "✨✨ Phil Won! ✨✨")
+    pig_callback = generate_callback_func(
+        embed, 2, msg, pig_name, "✨✨ Phil Won! ✨✨"
+    )
 
     options = {
         "🐟": ReactionMenuOption(
