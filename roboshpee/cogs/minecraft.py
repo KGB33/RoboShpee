@@ -1,8 +1,8 @@
+from textwrap import dedent
+
 from discord.ext import commands
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
-
-from textwrap import dedent
 
 from roboshpee.bot import Bot
 
