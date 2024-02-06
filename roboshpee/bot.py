@@ -1,12 +1,10 @@
 import asyncio
 import logging
-import re
 
-from discord import Intents, Message
+from discord import Intents
 from discord.ext import commands
 
 from roboshpee import constants
-from roboshpee import events
 
 log = logging.getLogger("bot")
 
