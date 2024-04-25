@@ -28,15 +28,22 @@ async def taco_time(ctx, delta: Optional[int]):
     """
     Takes a duration (in mins) and translates it to taco_time
     """
-    dir_ = (
-        BASE_DIR
-        / "static"
-        / random.choice(("taco_time.png", "wow_tacos.png", "wow_in_a_few.png"))
+    media = random.choice(
+        [
+            BASE_DIR / "static" / img
+            for img in (
+                "JustOneMin.webm",  # Source: https://www.youtube.com/watch?v=zr5XBr0Er7U
+                "taco_time.png",
+                "wow_tacos.png",
+                "wow_in_a_few.png",
+            )
+        ]
     )
+    message = ""
     if delta is not None:
         scaled_delta = random.gammavariate(2, 2) * delta
-        await ctx.send(f"The estimated taco time is about {scaled_delta:.2g}mins")
-    await ctx.send(file=discord.File(dir_))
+        message = f"The estimated taco time is about {scaled_delta:.2g}mins"
+    return await ctx.send(message, file=discord.File(media))
 
 
 @commands.command()
