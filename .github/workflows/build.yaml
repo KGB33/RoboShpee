@@ -19,16 +19,17 @@ jobs:
       - uses: actions/checkout@v3
         with:
           lfs: true
-      - uses: actions/setup-python@v4
+      - name: Run Tests
+        uses: dagger/dagger-for-github@v5
         with:
-          python-version: '3.11'
-
-      - name: Enable multi-platform Builds
-        # https://github.com/dagger/dagger/issues/3801
-        run: docker run --privileged --rm tonistiigi/binfmt --install all
-      - name: Install dagger sdk
-        run: python3 -m pip install dagger-io
-      - name: Build Images
-        run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u KGB33 --password-stdin
-          python3 dag.py --publish --verbose --gha --skip_tests
+          verb: call 
+          args: "test --req pyproject.toml --src roboshpee/ --tests tests/"
+          version: "0.11.3"
+      - name: Publish to GHCR
+        uses: dagger/dagger-for-github@v5
+        with:
+          verb: call 
+          args: "publish --req pyproject.toml --src roboshpee/ --ghcr-token env:GH_TOKEN"
+          version: "0.11.3"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

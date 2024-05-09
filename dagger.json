@@ -1,0 +1,6 @@
+{
+  "name": "roboshpee",
+  "sdk": "python",
+  "source": "dagger",
+  "engineVersion": "v0.11.2"
+}
