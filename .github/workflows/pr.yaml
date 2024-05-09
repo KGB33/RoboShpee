@@ -1,4 +1,4 @@
-name: "Run tests for PRs"
+name: "PR Checks"
 
 on:
   workflow_dispatch:
@@ -8,7 +8,7 @@ on:
       - 'main'
 jobs:
   publish:
-    name: "Run tests for PRs"
+    name: "PR Checks"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -20,9 +20,4 @@ jobs:
           verb: call 
           args: "test --req pyproject.toml --src roboshpee/ --tests tests/"
           version: "0.11.3"
-        env:
-          DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
-      # Overrides the default Docker stop timeout to give the Dagger engine more time to push cache data to Dagger Cloud
-      - name: Stop Engine
-        run: docker stop -t 300 $(docker ps --filter name="dagger-engine-*" -q)
-        if: always()
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}

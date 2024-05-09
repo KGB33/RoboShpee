@@ -25,10 +25,6 @@ jobs:
           verb: call 
           args: "publish --req pyproject.toml --src roboshpee/ --ghcr-token env:GH_TOKEN"
           version: "0.11.3"
+          cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
-      # Overrides the default Docker stop timeout to give the Dagger engine more time to push cache data to Dagger Cloud
-      - name: Stop Engine
-        run: docker stop -t 300 $(docker ps --filter name="dagger-engine-*" -q)
-        if: always()
