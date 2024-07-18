@@ -1,16 +1,15 @@
 [project]
 name = "RoboShpee"
-version = "1.0.0" # TODO: Update to hatch-vcs
+version = "1.0.0"
 description = ""
 authors = ["KGB33 <keltonbassingthwaite@gmail.com>"]
 requires-python = ">=3.11"
 dependencies = [
-    "discord.py>=2.3.1",
-    "prettytable>=3.8.0",
+    "discord.py>=2.4.0",
+    "prettytable>=3.10.2",
     "fuzzywuzzy[speedup]>=0.18.0",
-    "requests>=2.31.0",
+    "requests>=2.32.3",
     "cashews>=6.2.0",
-    "charset-normalizer>=3.1.0",
     "gql[aiohttp]>=3.4.1",
 ]
 
@@ -22,9 +21,6 @@ dev = [
     "pytest-asyncio>=0.21.0",
     "pytest-check>=2.1.5",
     "ruff>=0.0.277",
-    "astroid>=2.15.5",
-    "identify>=2.5.24",
-    "platformdirs>=3.8.0",
 ]
 
 [build-system]
