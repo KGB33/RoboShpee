@@ -2,7 +2,9 @@
 name = "RoboShpee"
 version = "1.0.0"
 description = ""
-authors = ["KGB33 <keltonbassingthwaite@gmail.com>"]
+authors = [
+    { name = "Kelton Bassingthwaite (kgb33)", email = "keltonbassingthwaite@gmail.com"}
+]
 requires-python = ">=3.11"
 dependencies = [
     "discord.py>=2.4.0",
