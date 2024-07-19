@@ -40,7 +40,7 @@ class Roboshpee:
 
     @function
     async def publish(self, ghcr_token: dagger.Secret):
-        return (
+        return await (
             self.build()
             .with_entrypoint(["python", "-m", "roboshpee"])
             .with_registry_auth("ghcr.io", "kgb33", ghcr_token)
