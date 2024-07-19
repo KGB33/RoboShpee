@@ -15,8 +15,9 @@
 
 ## Run Locally
 
-First, create an account for your bot, Discord.py has a great
-tutorial [here](https://discordpy.readthedocs.io/en/stable/discord.html).
+There are two ways to run locally, both start with creating an account for your
+bot; Discord.py has a great tutorial
+[here](https://discordpy.readthedocs.io/en/stable/discord.html).
 
 Then, clone the project:
 
@@ -25,13 +26,21 @@ Then, clone the project:
   cd RoboShpee
 ```
 
-Create and activate a new virtual environment, install the dependencies,
+### The Normal Way
+
+Install Python ^3.11 and UV.
+
+Then create and activate a new virtual environment, install the dependencies,
 and start the bot.
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate && python -m pip install --upgrade pip
-pip install pyproject.toml
+uv venv
+. .venv/bin/activate
+uv pip install pyproject.toml
 
 DISCORD_TOKEN=YOUR_TOKEN_HERE python -m roboshpee
 ```
+
+### The "Simple Way"
+
+Install Docker, and Nix (or Dagger & Just), then: `just run`

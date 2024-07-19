@@ -1,64 +1,39 @@
-[tool.poetry]
+[project]
 name = "RoboShpee"
 version = "1.0.0"
 description = ""
-authors = ["KGB33 <github@bassingthwaite.org>"]
+authors = [
+    { name = "Kelton Bassingthwaite (kgb33)", email = "keltonbassingthwaite@gmail.com"}
+]
+requires-python = ">=3.11"
+dependencies = [
+    "discord.py>=2.4.0",
+    "prettytable>=3.10.2",
+    "fuzzywuzzy[speedup]>=0.18.0",
+    "requests>=2.32.3",
+    "cashews>=6.2.0",
+    "gql[aiohttp]>=3.4.1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-"discord.py" = "^2.3.1"
-prettytable = "^3.8.0"
-fuzzywuzzy = {extras = ["speedup"], version = "^0.18.0"}
-requests = "^2.31.0"
-cashews = "^6.2.0"
-charset-normalizer = "^3.1.0"
-gql = {extras = ["aiohttp"], version = "^3.4.1"}
-
-[tool.poetry.group.dev.dependencies]
-pre-commit = "^3.3.3"
-black = "^23.3.0"
-pylint = "^2.17.4"
-pytest = "^7.4.0"
-hypothesis = "^6.80.1"
-isort = "^5.12.0"
-dagger-io = "^0.6.3"
-# dagger-io = { path = "../../Code/dagger/sdk/python/", develop = true }
-poethepoet = "^0.20.0"
-pytest-asyncio = "^0.21.0"
-pytest-check = "^2.1.5"
-ruff = "^0.0.277"
-astroid = "^2.15.5"
-identify = "^2.5.24"
-mypy-extensions = "^1.0.0"
-platformdirs = "^3.8.0"
-setuptools = "^68.0.0"
-virtualenv = "^20.23.1"
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.3.3",
+    "pytest>=7.4.0",
+    "hypothesis>=6.80.1",
+    "pytest-asyncio>=0.21.0",
+    "pytest-check>=2.1.5",
+    "ruff>=0.0.277",
+]
 
 [build-system]
-requires = ["poetry-core>=1.0.0a5"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 testpaths = [
     "tests",
 ]
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-
 [tool.ruff]
 select=["E", "F", "I",]
 fix=true
-
-[tool.poe.tasks]
-test = "pytest"
-fmt = [
-	{cmd="black ."}
-]
-lint = [
-	{cmd="ruff ."},
-	"fmt",
-]
-build = "python build.py"
-run = "python -m roboshpee"
