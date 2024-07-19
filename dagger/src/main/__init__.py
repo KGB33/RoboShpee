@@ -39,7 +39,7 @@ class Roboshpee:
         )
 
     @function
-    async def publish(self, ghcr_token: dagger.Secret):
+    async def publish(self, ghcr_token: dagger.Secret) -> str:
         return await (
             self.build()
             .with_entrypoint(["python", "-m", "roboshpee"])
