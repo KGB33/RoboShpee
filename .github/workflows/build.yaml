@@ -23,7 +23,7 @@ jobs:
         uses: dagger/dagger-for-github@v5
         with:
           verb: call 
-          args: "--lockfile uv.lock --req pyproject.toml --src roboshpee publish --ghcr-token env:GH_TOKEN"
+          args: "--lockfile uv.lock --pyproject pyproject.toml --src roboshpee publish --ghcr-token env:GH_TOKEN"
           version: "0.12.1"
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
         env:
