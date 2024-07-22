@@ -41,7 +41,7 @@ async def taco_time(ctx, delta: Optional[int]):
     )
     message = ""
     if delta is not None:
-        scaled_delta = random.gammavariate(2, 2) * delta
+        scaled_delta = (random.random() + 1) * delta
         message = f"The estimated taco time is about {scaled_delta:.2g}mins"
     return await ctx.send(message, file=discord.File(media))
 
