@@ -8,6 +8,9 @@ PREFIX = "dagger"
 class Actions:
     @function
     def workflows(self) -> dagger.Directory:
+        """
+        Usage, from the root of the repo: `dagger call generate-ci workflows -o .`
+        """
         return (
             dag.gha(dagger_version="v0.12.6")
             # Test on PRs

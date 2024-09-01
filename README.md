@@ -43,4 +43,4 @@ DISCORD_TOKEN=YOUR_TOKEN_HERE python -m roboshpee
 
 ### The "Simple Way"
 
-Install Docker, and Nix (or Dagger & Just), then: `just run`
+Install Dagger, then just `dagger call run --token env:DISCORD_TOKEN`.
