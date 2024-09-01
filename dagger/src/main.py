@@ -1,14 +1,28 @@
+from typing import Annotated
 import dagger
-from dagger import dag, function, object_type
+from dagger import dag, function, object_type, DefaultPath, Ignore
 
 PYTHON_TAG = "3.12"
 
 
 @object_type
 class Roboshpee:
-    lockfile: dagger.File
-    pyproject: dagger.File
     src: dagger.Directory
+    is_dev: bool
+
+    def __init__(
+        self,
+        src: Annotated[dagger.Directory, DefaultPath("/"), Ignore([".venv"])],
+        is_dev: bool = True,
+    ):
+        self.src = src
+        self.is_dev = is_dev
+
+        if is_dev:
+            self.lockfile = self.src.file("uv.dev.lock")
+        else:
+            self.lockfile = self.src.file("uv.lock")
+        self.pyproject = self.src.file("pyproject.toml")
 
     @function
     def build(
@@ -28,18 +42,20 @@ class Roboshpee:
                     "uv",
                     "pip",
                     "install",
+                    "--system",
                     "--break-system-packages",
                     "-r",
                     "uv.lock",
-                    "--python",
-                    "python",
                 ]
             )
-            .with_directory("/app/roboshpee", self.src)
+            .with_directory("/app/roboshpee", self.src.directory("roboshpee"))
         )
 
     @function
     async def publish(self, ghcr_token: dagger.Secret) -> str:
+        assert (
+            not self.is_dev
+        ), "You probably don't want to publish a dev build (pass --is-dev=false)."
         return await (
             self.build()
             .with_entrypoint(["python", "-m", "roboshpee"])
@@ -49,8 +65,7 @@ class Roboshpee:
 
     @function
     async def test(
-        self,
-        tests: dagger.Directory,
+        self, tests: Annotated[dagger.Directory, DefaultPath("/tests")]
     ) -> str:
         return await (
             self.build()
