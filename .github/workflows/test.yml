@@ -1,7 +1,9 @@
 # This file was generated. See https://daggerverse.dev/mod/github.com/shykes/gha
 name: Test
 "on":
-    push: {}
+    push:
+        branches:
+            - main
     pull_request: {}
     workflow_dispatch: {}
 jobs:

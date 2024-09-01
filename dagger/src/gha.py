@@ -16,7 +16,7 @@ class Actions:
                 command="test",
                 lfs=True,
                 on_pull_request=True,
-                on_push=True,
+                on_push_branches=["main"],
             )
             # Publish
             .with_pipeline(
