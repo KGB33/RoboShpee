@@ -74,23 +74,10 @@ class Roboshpee:
                     "uv",
                     "pip",
                     "install",
-                    "--break-system-packages",
-                    "-r",
-                    "uv.lock",
-                    "--python",
-                    "python",
-                ]
-            )
-            .with_exec(
-                [
-                    "uv",
-                    "pip",
-                    "install",
+                    "--system",
                     "--break-system-packages",
                     "-e",
                     ".",
-                    "--python",
-                    "python",
                 ]
             )
             .with_directory("/app/tests", tests)

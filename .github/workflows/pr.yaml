@@ -18,6 +18,6 @@ jobs:
         uses: dagger/dagger-for-github@v5
         with:
           verb: call 
-          args: "--lockfile uv.dev.lock --pyproject pyproject.toml --src roboshpee test --tests tests/"
-          version: "0.11.3"
+          args: "test"
+          version: "0.12.6"
           cloud-token: ${{ secrets.DAGGER_CLOUD_TOKEN }}
