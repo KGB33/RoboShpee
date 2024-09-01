@@ -2,6 +2,8 @@ from typing import Annotated
 import dagger
 from dagger import dag, function, object_type, DefaultPath, Ignore
 
+from gha import Actions
+
 PYTHON_TAG = "3.12"
 
 
@@ -23,6 +25,10 @@ class Roboshpee:
         else:
             self.lockfile = self.src.file("uv.lock")
         self.pyproject = self.src.file("pyproject.toml")
+
+    @function
+    def generate_ci(self) -> Actions:
+        return Actions()
 
     @function
     def build(

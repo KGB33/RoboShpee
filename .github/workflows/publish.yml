@@ -1,14 +1,19 @@
 # This file was generated. See https://daggerverse.dev/mod/github.com/shykes/gha
-name: test
+name: Publish
 "on":
+    push:
+        branches:
+            - main
     workflow_dispatch: {}
 jobs:
     dagger:
         runs-on: ubuntu-latest
-        name: test
+        name: Publish
         steps:
             - name: Checkout
               uses: actions/checkout@v4
+              with:
+                lfs: "true"
             - name: scripts/install-dagger.sh
               id: install-dagger
               run: |
@@ -34,7 +39,7 @@ jobs:
                 # The install.sh script creates path ${prefix_dir}/bin
                 curl -fsS https://dl.dagger.io/dagger/install.sh | BIN_DIR=${prefix_dir}/bin sh
               env:
-                DAGGER_VERSION: latest
+                DAGGER_VERSION: v0.12.6
               shell: bash
             - name: scripts/warm-engine.sh
               id: warm-engine
@@ -166,7 +171,7 @@ jobs:
                 exit $EXIT_CODE
               env:
                 _EXPERIMENTAL_DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
-                COMMAND: dagger call -q test
+                COMMAND: dagger call -q --is-dev=false publish --ghcr-token env:GITHUB_TOKEN
                 DAGGER_CLOUD_TOKEN: ${{ secrets.DAGGER_CLOUD_TOKEN }}
                 GITHUB_ACTION: ${{ github.action }}
                 GITHUB_ACTION_PATH: ${{ github.action_path }}
