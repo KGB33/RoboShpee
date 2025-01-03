@@ -18,6 +18,7 @@ async def main():
             await instance.login(TOKEN)
             log.info("Loading Cogs...")
             await instance.load_extentions()
+            await instance.tree.sync()
             log.info("Connecting...")
             await instance.connect()
             log.info("Done!")
