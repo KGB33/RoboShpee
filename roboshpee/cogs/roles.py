@@ -124,7 +124,7 @@ async def create(ctx, name):
             callback_trigger=REQUIRED_VOTES,
         ),
         "❌": ReactionMenuOption(
-            callback_func=lambda: print("No Won"),
+            callback_func=lambda: log.info(f"Role vote for {name} failed."),
             on_reaction_add=NO_reaction_event,
             on_reaction_remove=NO_reaction_event,
             calculate_reaction_value=calc_value_func,
