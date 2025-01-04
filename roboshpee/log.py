@@ -26,8 +26,9 @@ def setup() -> None:
     stdout_handler.setFormatter(log_format)
 
     root_log = logging.getLogger()
+    print(root_log.handlers)
     root_log.setLevel(log_level)
-    root_log.addHandler(file_handler)
+    # root_log.addHandler(file_handler)
     root_log.addHandler(stdout_handler)
 
     logging.getLogger("discord").setLevel(logging.WARNING)

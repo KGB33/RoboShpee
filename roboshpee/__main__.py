@@ -3,9 +3,7 @@ import logging
 import os
 
 from roboshpee.bot import Bot
-from roboshpee.log import setup as logging_setup
 
-logging_setup()
 log = logging.getLogger(name="bot")
 
 
