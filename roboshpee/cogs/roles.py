@@ -1,3 +1,4 @@
+import logging
 from typing import Final, Iterable, Literal
 
 import discord
@@ -17,6 +18,8 @@ from roboshpee.constants import (
 from roboshpee.menu import ReactionMenu, ReactionMenuOption
 from roboshpee.security import minimum_role_permission, requires_exact_role
 from roboshpee.utils import msg_owner, ttl_cache
+
+log = logging.getLogger(name="bot")
 
 
 @commands.hybrid_group()
@@ -61,7 +64,7 @@ async def create(ctx, name):
 
     Requires Elder Shpee role or greater to start a vote.
     """
-    await ctx.defer()
+    log.info(f"Recived request to create role: '{name}'")
     REQUIRED_VOTES: Final = 12
     YES_IDX, NO_IDX = 0, 1
     YES_NAME, NO_NAME = "✅-Yes", "❌-No"
