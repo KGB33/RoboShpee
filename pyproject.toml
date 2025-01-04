@@ -35,5 +35,5 @@ testpaths = [
 ]
 
 [tool.ruff]
-select=["E", "F", "I",]
+lint.select=["E", "F", "I",]
 fix=true
