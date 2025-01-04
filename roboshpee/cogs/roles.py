@@ -21,7 +21,6 @@ from roboshpee.utils import msg_owner, ttl_cache
 
 @commands.hybrid_group()
 async def role(ctx):
-    await ctx.defer()
     if ctx.invoked_subcommand is not None:
         return
     await list_(ctx)
@@ -32,6 +31,7 @@ async def list_(ctx, orderby: Literal["count", "name", "member"] = "name"):
     """
     Displays all toggleable roles.
     """
+    await ctx.defer()
     toggleable_roles = [
         {"count": len(r.members), "name": r.name, "member": (r in ctx.author.roles)}
         for r in _fetch_toggleable_roles(ctx.guild).values()
@@ -61,6 +61,7 @@ async def create(ctx, name):
 
     Requires Elder Shpee role or greater to start a vote.
     """
+    await ctx.defer()
     REQUIRED_VOTES: Final = 12
     YES_IDX, NO_IDX = 0, 1
     YES_NAME, NO_NAME = "✅-Yes", "❌-No"
@@ -151,6 +152,7 @@ async def delete(ctx, role_name: str):
     """
     Deletes a role, can only be preformed by the owner.
     """
+    await ctx.defer()
     toggleable_roles = _fetch_toggleable_roles(ctx.guild)
     role = toggleable_roles.get(role_name.lower(), None)
     if role is None:
@@ -181,6 +183,7 @@ async def toggle_multiple(ctx, *roles):
         Added Overwatch
         Removed TeamFortressTwo
     """
+    await ctx.defer()
     # Parse input data
     validated_roles, invalid_roles = _validate_role_input(roles, ctx.guild)
 
@@ -216,6 +219,7 @@ async def add_multiple(ctx, *roles):
         Added Overwatch
         Added TeamFortressTwo
     """
+    await ctx.defer()
     roles, inval_roles = _validate_role_input(roles, ctx.guild)
     if inval_roles:
         await _handle_invalid_roles(ctx, inval_roles)
@@ -249,6 +253,7 @@ async def remove_multiple(ctx, *roles):
         Removed: Overwatch
         Removed: TeamFortressTwo
     """
+    await ctx.defer()
     roles, inval_roles = _validate_role_input(roles, ctx.guild)
     if inval_roles:
         await _handle_invalid_roles(ctx, inval_roles)
