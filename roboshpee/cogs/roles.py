@@ -21,6 +21,7 @@ from roboshpee.utils import msg_owner, ttl_cache
 
 @commands.hybrid_group()
 async def role(ctx):
+    await ctx.defer()
     if ctx.invoked_subcommand is not None:
         return
     await list_(ctx)
