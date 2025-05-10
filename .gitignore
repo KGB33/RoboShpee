@@ -112,7 +112,6 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-.envrc
 .direnv
 
 # Spyder project settings
@@ -138,3 +137,8 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+
+# Added by cargo
+
+/target
