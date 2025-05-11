@@ -44,3 +44,29 @@ DISCORD_TOKEN=YOUR_TOKEN_HERE python -m roboshpee
 ### The "Simple Way"
 
 Install Dagger, then just `dagger call run --token env:DISCORD_TOKEN`.
+
+# Rust rewrite
+
+Oftentimes, slash commands would fail to respond in time and would thus be killed by Discord.
+I'm not rewriting it in rust just for speed, but because:
+  - I don't want to manage/deploy heavy Docker containers
+  - I (now) prefer strongly typed languages.
+  - Adding telemetry seems like fun, and could be a good rust meetup topic.
+
+
+## Jaeger setup
+
+Run Jaeger: 
+
+```bash
+ podman run --replace --name jaeger \
+    -e COLLECTOR_OTLP_ENABLED=true \
+    -p 16686:16686 \
+    -p 4317:4317 \
+    -p 4318:4318 \
+    jaegertracing/jaeger
+```
+
+Access traces at [http://localhost:16686](http://localhost:16686)
+
+Then, run RoboShpee with `OTEL_SERVICE_NAME=roboshpee RUST_LOG="debug,h2=warn" cargo run`
