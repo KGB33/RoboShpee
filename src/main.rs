@@ -1,12 +1,11 @@
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_otlp::WithExportConfig;
-use opentelemetry_sdk::{
-    runtime,
-    trace::{Config, SdkTracerProvider},
-};
+use opentelemetry_sdk::{Resource, trace::SdkTracerProvider};
 use poise::serenity_prelude as serenity;
 use tracing::{self};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+
+mod roles;
 
 #[derive(Debug)]
 struct Data {} // User data, which is stored and accessible in all command invocations
@@ -26,6 +25,39 @@ async fn age(
     Ok(())
 }
 
+#[tracing::instrument]
+#[poise::command(prefix_command, category = "Meta", owners_only, hide_in_help)]
+async fn register(ctx: Context<'_>) -> Result<(), Error> {
+    poise::builtins::register_application_commands_buttons(ctx).await?;
+    Ok(())
+}
+
+#[tracing::instrument]
+#[poise::command(prefix_command, slash_command, category = "Meta")]
+async fn help(
+    ctx: Context<'_>,
+    #[description = "Command to show help about"]
+    #[rest]
+    mut command: Option<String>,
+) -> Result<(), Error> {
+    // Rewrite `command_with_subcommand help ...` calls to
+    // `help command_with_subcommand ...`
+    if ctx.invoked_command_name() != "help" {
+        command = match command {
+            Some(c) => Some(format!("{} {}", ctx.invoked_command_name(), c)),
+            None => Some(ctx.invoked_command_name().to_string()),
+        }
+    }
+
+    let cfg = poise::builtins::HelpConfiguration {
+        show_subcommands: true,
+        ephemeral: true,
+        ..Default::default()
+    };
+    poise::builtins::help(ctx, command.as_deref(), cfg).await?;
+    Ok(())
+}
+
 #[tokio::main]
 async fn main() {
     init_tracer();
@@ -35,7 +67,8 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![age()],
+            commands: vec![help(), age(), roles::role(), register()],
+            initialize_owners: false,
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
@@ -60,8 +93,8 @@ fn init_tracer() {
         .unwrap();
 
     let provider = SdkTracerProvider::builder()
-        .with_simple_exporter(opentelemetry_stdout::SpanExporter::default())
         .with_batch_exporter(otlp_exporter)
+        .with_resource(Resource::builder().with_service_name("roboshpee").build())
         .build();
 
     let tracer = provider.tracer("roboshpee");
