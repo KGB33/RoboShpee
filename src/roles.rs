@@ -1,3 +1,4 @@
+use futures::{Stream, StreamExt};
 use poise::serenity_prelude::Role;
 
 use crate::{Context, Error};
@@ -21,7 +22,9 @@ pub async fn role(ctx: Context<'_>) -> Result<(), Error> {
 #[poise::command(slash_command, prefix_command, track_edits, category = "Roles")]
 async fn add(
     ctx: Context<'_>,
-    #[description = "Role to add"] role_name: String,
+    #[description = "Role to add"]
+    #[autocomplete = "autocomplete_role"]
+    role_name: String,
 ) -> Result<(), Error> {
     let Some(role) = get_roles(&ctx)
         .unwrap()
@@ -49,7 +52,9 @@ async fn add(
 #[poise::command(slash_command, prefix_command, track_edits, category = "Roles")]
 async fn remove(
     ctx: Context<'_>,
-    #[description = "Role to remove"] role_name: String,
+    #[description = "Role to remove"]
+    #[autocomplete = "autocomplete_role"]
+    role_name: String,
 ) -> Result<(), Error> {
     let Some(role) = get_roles(&ctx)
         .unwrap()
@@ -102,6 +107,7 @@ async fn create(ctx: Context<'_>) -> Result<(), Error> {
     Ok(())
 }
 
+#[tracing::instrument]
 fn get_roles<'a>(ctx: &'a Context<'a>) -> Option<Vec<Role>> {
     ctx.guild().map(|g| g.to_owned().roles).map(|rs| {
         let mut rs = rs
@@ -111,4 +117,12 @@ fn get_roles<'a>(ctx: &'a Context<'a>) -> Option<Vec<Role>> {
         rs.sort_by(|a, b| a.name.cmp(&b.name));
         rs
     })
+}
+
+#[tracing::instrument]
+async fn autocomplete_role<'a>(ctx: Context<'_>, partial: &'a str) -> impl Stream<Item = String> {
+    let partial_lower = partial.to_lowercase();
+    futures::stream::iter(get_roles(&ctx).unwrap())
+        .filter(move |r| futures::future::ready(r.name.to_lowercase().starts_with(&partial_lower)))
+        .map(|r| r.name)
 }
