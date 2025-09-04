@@ -1,5 +1,6 @@
 use futures::{Stream, StreamExt};
-use poise::serenity_prelude::Role;
+use log;
+use poise::serenity_prelude::{Mention, Role};
 
 use crate::{Context, Error};
 
@@ -43,6 +44,11 @@ async fn add(
         .unwrap()
         .add_role(ctx.http(), role.id)
         .await?;
+    log::info!(
+        "Added role '{:?}' to user '{:?}'",
+        role.name,
+        ctx.author().name
+    );
     ctx.say(format!("Added {:?}", role.name)).await?;
     Ok(())
 }
@@ -102,8 +108,17 @@ async fn list(ctx: Context<'_>) -> Result<(), Error> {
 /// Starts a vote to create a new role
 #[tracing::instrument]
 #[poise::command(slash_command, prefix_command, track_edits, category = "Roles")]
-async fn create(ctx: Context<'_>) -> Result<(), Error> {
-    ctx.say("Just ping KGB33.").await?;
+async fn create(
+    ctx: Context<'_>,
+    #[description = "Role to create"] role_name: String,
+) -> Result<(), Error> {
+    ctx.reply(format!(
+        "{}, {} wants to create role `{}`.",
+        Mention::from(ctx.guild().map_or(ctx.author().id, |g| g.owner_id)),
+        Mention::from(ctx.author().id),
+        role_name
+    ))
+    .await?;
     Ok(())
 }
 

@@ -16,4 +16,6 @@ opentelemetry-otlp = { version = "0.29.0", features = ["tokio"] }
 opentelemetry-stdout = "0.29.0"
 itertools = "0.14.0"
 futures = "0.3.31"
+tracing-log = "0.2.0"
+log = "0.4.27"
 
