@@ -8,7 +8,7 @@ console-subscriber = "0.4.1"
 poise = "0.6.1"
 tokio = { version = "1.45.0", features = ["rt-multi-thread", "tracing"] }
 tracing = "0.1.41"
-tracing-subscriber = "0.3.19"
+tracing-subscriber = "0.3.20"
 opentelemetry = "0.29.1"
 tracing-opentelemetry = "0.30.0" 
 opentelemetry_sdk = { version = "0.29.0", features = ["experimental_async_runtime", "jaeger_remote_sampler", "rt-tokio", "tokio"] }
