@@ -1,3 +1,4 @@
+#![feature(random)]
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{Resource, trace::SdkTracerProvider};
@@ -5,6 +6,7 @@ use poise::serenity_prelude as serenity;
 use tracing::{self};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+mod misc;
 mod roles;
 
 #[derive(Debug)]
@@ -67,7 +69,7 @@ async fn main() {
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
-            commands: vec![help(), age(), roles::role(), register()],
+            commands: vec![help(), age(), roles::role(), misc::taco_time(), register()],
             initialize_owners: false,
             ..Default::default()
         })
