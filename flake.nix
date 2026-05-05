@@ -54,7 +54,7 @@
               inherit cargoArtifacts;
               partitions = 1;
               partitionType = "count";
-              cargoNextTestPartitionsExtraArgs = "--no-tests=pass";
+              cargoNextestExtraArgs = "--no-tests=pass";
             }
           );
         };

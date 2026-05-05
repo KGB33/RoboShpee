@@ -1,5 +1,4 @@
 use futures::{Stream, StreamExt};
-use log;
 use poise::serenity_prelude::{Mention, Role};
 
 use crate::{Context, Error};
@@ -135,7 +134,7 @@ fn get_roles<'a>(ctx: &'a Context<'a>) -> Option<Vec<Role>> {
 }
 
 #[tracing::instrument]
-async fn autocomplete_role<'a>(ctx: Context<'_>, partial: &'a str) -> impl Stream<Item = String> {
+async fn autocomplete_role(ctx: Context<'_>, partial: &str) -> impl Stream<Item = String> {
     let partial_lower = partial.to_lowercase();
     futures::stream::iter(get_roles(&ctx).unwrap())
         .filter(move |r| futures::future::ready(r.name.to_lowercase().starts_with(&partial_lower)))
