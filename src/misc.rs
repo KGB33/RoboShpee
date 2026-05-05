@@ -1,5 +1,4 @@
 use crate::{Context, Error};
-use poise::serenity_prelude as serenity;
 use std::random::random;
 
 #[tracing::instrument]
@@ -16,22 +15,20 @@ pub async fn taco_time(
         "wow_tacos.png",
     ];
     let chosen = &media_files[random::<usize>(..) % media_files.len()];
-    let path = format!("roboshpee/static/{chosen}");
+    let url = format!(
+        "https://media.githubusercontent.com/media/KGB33/RoboShpee/main/roboshpee/static/{chosen}"
+    );
 
     let message = match delta {
         Some(d) => {
             let r = random::<u32>(..) as f64 / u32::MAX as f64;
             let scaled = (r + 1.0) * d;
-            format!("The estimated taco time is about {scaled:.1}mins")
+            format!("The estimated taco time is about {scaled:.1}mins\n{url}")
         }
-        None => String::new(),
+        None => url,
     };
 
-    ctx.send(
-        poise::CreateReply::default()
-            .content(message)
-            .attachment(serenity::CreateAttachment::path(&path).await?),
-    )
-    .await?;
+    ctx.send(poise::CreateReply::default().content(message))
+        .await?;
     Ok(())
 }
