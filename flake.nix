@@ -30,7 +30,8 @@
         commonArgs = {
           inherit src;
           strictDeps = true;
-          nativeBuildInputs = with pkgs; [pkg-config openssl];
+          nativeBuildInputs = with pkgs; [pkg-config cmake openssl];
+          buildInputs = with pkgs; [libopus];
         };
         cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         roboshpee = craneLib.buildPackage (

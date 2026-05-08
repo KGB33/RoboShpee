@@ -3,9 +3,11 @@ use opentelemetry::trace::TracerProvider;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::{Resource, trace::SdkTracerProvider};
 use poise::serenity_prelude as serenity;
+use songbird::SerenityInit;
 use tracing::{self};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+mod events;
 mod misc;
 mod roles;
 
@@ -71,6 +73,9 @@ async fn main() {
         .options(poise::FrameworkOptions {
             commands: vec![help(), age(), roles::role(), misc::taco_time(), register()],
             initialize_owners: false,
+            event_handler: |ctx, event, framework, data| {
+                Box::pin(events::event_handler(ctx, event, framework, data))
+            },
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
@@ -83,6 +88,7 @@ async fn main() {
 
     let client = serenity::ClientBuilder::new(token, intents)
         .framework(framework)
+        .register_songbird()
         .await;
     client.unwrap().start().await.unwrap();
 }
