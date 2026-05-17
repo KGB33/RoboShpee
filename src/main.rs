@@ -73,9 +73,9 @@ async fn main() {
         .options(poise::FrameworkOptions {
             commands: vec![help(), age(), roles::role(), misc::taco_time(), register()],
             initialize_owners: false,
-            event_handler: |ctx, event, framework, data| {
-                Box::pin(events::event_handler(ctx, event, framework, data))
-            },
+            // event_handler: |ctx, event, framework, data| {
+            //     Box::pin(events::event_handler(ctx, event, framework, data))
+            // },
             ..Default::default()
         })
         .setup(|ctx, _ready, framework| {
