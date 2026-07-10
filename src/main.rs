@@ -72,6 +72,7 @@ async fn main() {
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: vec![help(), age(), roles::role(), misc::taco_time(), register()],
+            owners: std::collections::HashSet::from([serenity::UserId::new(249341705579528192)]),
             initialize_owners: false,
             // event_handler: |ctx, event, framework, data| {
             //     Box::pin(events::event_handler(ctx, event, framework, data))
